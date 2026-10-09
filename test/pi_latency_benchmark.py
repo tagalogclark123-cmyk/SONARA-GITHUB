@@ -9,7 +9,7 @@ Latency does not depend on the trained weights, so random weights give the same 
 Pass --weights_dir to also check that the trained .pt files load on the Pi.
 
 Requires: torch, torchvision (for MobileNetV3), numpy. torchaudio is optional; if present,
-feature extraction (log-mel + deltas) for one 4-s clip is timed as well.
+feature extraction (log-mel + deltas) for one 5-s clip is timed as well.
 """
 import argparse, os, platform, time
 import numpy as np
@@ -50,18 +50,18 @@ try:
     mel = torchaudio.transforms.MelSpectrogram(sample_rate=16000, n_fft=400, hop_length=160, n_mels=64, power=2.0)
     to_db = torchaudio.transforms.AmplitudeToDB(stype="power")
     dl = torchaudio.transforms.ComputeDeltas()
-    wav = torch.randn(1, 4 * 16000) * 0.1
+    wav = torch.randn(1, 5 * 16000) * 0.1
 
     @torch.no_grad()
     def feats():
         db = to_db(mel(wav)); d1 = dl(db); return torch.cat([db, d1, dl(d1)], 0)
 
     med, p95 = time_fn(feats)
-    rows.append(dict(step="feature extraction (4-s clip)", params="", size_mb="", median_ms=round(med, 1), p95_ms=round(p95, 1)))
+    rows.append(dict(step="feature extraction (5-s clip)", params="", size_mb="", median_ms=round(med, 1), p95_ms=round(p95, 1)))
 except ImportError:
     print("torchaudio not installed: skipping feature-extraction timing")
 
-x = torch.randn(1, 3, 64, 400)
+x = torch.randn(1, 3, 64, 500)   # one 5-s clip
 for name in a.models:
     model = MODEL_BUILDERS[name]().eval()
     if a.weights_dir:
