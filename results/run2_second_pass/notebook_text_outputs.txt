@@ -1,0 +1,297 @@
+
+######## cell 2 | src: import os, re, copy, glob, hashlib, json, math, random, time
+Device: cpu | torch 2.11.0+cpu | torchvision 0.26.0+cpu
+
+######## cell 3 | src: # ---- Data and outputs ----------------------------------------------------
+Mounted at /content/drive
+Outputs: /content/drive/MyDrive/SONARA/run2_second_pass
+                                                 model                           parent                                   change      norm pretrained three_class gain_prob gain_db
+A3_cnn_bilstm_recipe                        cnn_bilstm        A2_cnn_bilstm_norm_recipe                     remove normalization      none      False       False       0.2     6.0
+B5_mobilenet_pre_recipe              mobilenetv3_small     B4_mobilenet_norm_pre_recipe                     remove normalization      none       True       False       0.2     6.0
+C2_efficientnet_pre_recipe             efficientnet_b0  C1_efficientnet_norm_pre_recipe                     remove normalization      none       True       False       0.2     6.0
+B6_mobilenet_norm_pre_recipe_3class  mobilenetv3_small     B4_mobilenet_norm_pre_recipe                            three classes  per_clip       True        True       0.2     6.0
+B7_mobilenet_pre_recipe_3class       mobilenetv3_small          B5_mobilenet_pre_recipe                            three classes      none       True        True       0.2     6.0
+B8_mobilenet_pre_recipe_gain         mobilenetv3_small          B5_mobilenet_pre_recipe  loudness change of ±12 dB on every clip      none       True       False       1.0    12.0
+
+######## cell 4 | src: # Download the repository (code + audio). Takes several minutes the first time.
+Cloning into '/content/SONARA-GITHUB'...
+remote: Enumerating objects: 6382, done.[K
+remote: Counting objects: 100% (6382/6382), done.[K
+remote: Compressing objects: 100% (6381/6381), done.[K
+remote: Total 6382 (delta 2), reused 6375 (delta 1), pack-reused 0 (from 0)[K
+Receiving objects: 100% (6382/6382), 2.54 GiB | 23.89 MiB/s, done.
+Resolving deltas: 100% (2/2), done.
+Updating files: 100% (6368/6368), done.
+Repo folder: /content/SONARA-GITHUB | exists: True
+
+######## cell 6 | src: SMARTEARS_NAME = re.compile(r"^(rpi\d+)-(\d{8})(\d{6})(?:-(\d+))?$")
+original_label  source    label
+Healthy         Normal    0        2000
+None            Noise     0        2000
+Sick            Distress  1        2000
+  loaded 1000/6000 clips (12s)
+  loaded 2000/6000 clips (24s)
+  loaded 3000/6000 clips (36s)
+  loaded 4000/6000 clips (48s)
+  loaded 5000/6000 clips (59s)
+  loaded 6000/6000 clips (70s)
+Loaded 6000 clips in 70s
+
+######## cell 8 | src: def grouped_folds(indices, n_splits, seed):
+Locked test set: 871 clips, id bf636617, saved to /content/drive/MyDrive/SONARA/run2_second_pass/locked_test_set.csv
+Development set: 5129 clips
+seed 7: train 4218 [2808, 1410] | val 911 [595, 316]
+seed 21: train 4235 [2812, 1423] | val 894 [591, 303]
+seed 42: train 4219 [2818, 1401] | val 910 [585, 325]
+
+######## cell 10 | src: class LogMelDeltas(nn.Module):
+
+######## cell 12 | src: class CNN_BiLSTM(nn.Module):
+CPU threads: 1 (Colab proxy, not the Pi)
+            model  parameters  size_MB  cpu_ms_per_clip
+       cnn_bilstm     1221186     4.88             70.8
+  efficientnet_b0     4010110    16.04             43.8
+mobilenetv3_small     1519906     6.08             11.7
+
+######## cell 14 | src: def forward_features(wav, n, cfg, training=False, level_offset_db=0.0):
+
+######## cell 16 | src: for seed in EXPLORE_SEEDS:
+skip (done): A3_cnn_bilstm_recipe_seed7
+skip (done): B5_mobilenet_pre_recipe_seed7
+skip (done): C2_efficientnet_pre_recipe_seed7
+skip (done): B6_mobilenet_norm_pre_recipe_3class_seed7
+skip (done): B7_mobilenet_pre_recipe_3class_seed7
+skip (done): B8_mobilenet_pre_recipe_gain_seed7
+skip (done): A3_cnn_bilstm_recipe_seed21
+skip (done): B5_mobilenet_pre_recipe_seed21
+skip (done): C2_efficientnet_pre_recipe_seed21
+skip (done): B6_mobilenet_norm_pre_recipe_3class_seed21
+skip (done): B7_mobilenet_pre_recipe_3class_seed21
+skip (done): B8_mobilenet_pre_recipe_gain_seed21
+skip (done): A3_cnn_bilstm_recipe_seed42
+skip (done): B5_mobilenet_pre_recipe_seed42
+Downloading: "https://download.pytorch.org/models/efficientnet_b0_rwightman-7f5810bc.pth" to /root/.cache/torch/hub/checkpoints/efficientnet_b0_rwightman-7f5810bc.pth
+100%|██████████| 20.5M/20.5M [00:00<00:00, 153MB/s]
+  [C2_efficientnet_pre_recipe seed 42] epoch 01 train 0.5380 val 0.4153 auc 0.9267 *
+  [C2_efficientnet_pre_recipe seed 42] epoch 02 train 0.4759 val 0.3721 auc 0.9363 *
+  [C2_efficientnet_pre_recipe seed 42] epoch 03 train 0.4335 val 0.3268 auc 0.9504 *
+  [C2_efficientnet_pre_recipe seed 42] epoch 04 train 0.4078 val 0.3141 auc 0.9508 *
+  [C2_efficientnet_pre_recipe seed 42] epoch 05 train 0.3884 val 0.2992 auc 0.9595 *
+  [C2_efficientnet_pre_recipe seed 42] epoch 06 train 0.3706 val 0.2804 auc 0.9618 *
+  [C2_efficientnet_pre_recipe seed 42] epoch 07 train 0.3580 val 0.2845 auc 0.9626
+  [C2_efficientnet_pre_recipe seed 42] epoch 08 train 0.3474 val 0.2951 auc 0.9699
+  [C2_efficientnet_pre_recipe seed 42] epoch 09 train 0.3456 val 0.2833 auc 0.9682
+  [C2_efficientnet_pre_recipe seed 42] epoch 10 train 0.3256 val 0.2666 auc 0.9681 *
+  [C2_efficientnet_pre_recipe seed 42] epoch 11 train 0.3235 val 0.2718 auc 0.9684
+  [C2_efficientnet_pre_recipe seed 42] epoch 12 train 0.2883 val 0.2747 auc 0.9660
+  [C2_efficientnet_pre_recipe seed 42] epoch 13 train 0.2893 val 0.2524 auc 0.9666 *
+  [C2_efficientnet_pre_recipe seed 42] epoch 14 train 0.2816 val 0.2511 auc 0.9674 *
+  [C2_efficientnet_pre_recipe seed 42] epoch 15 train 0.2587 val 0.3239 auc 0.9656
+  [C2_efficientnet_pre_recipe seed 42] epoch 16 train 0.2729 val 0.2656 auc 0.9673
+  [C2_efficientnet_pre_recipe seed 42] epoch 17 train 0.2591 val 0.2667 auc 0.9666
+  [C2_efficientnet_pre_recipe seed 42] epoch 18 train 0.2464 val 0.2537 auc 0.9709
+  [C2_efficientnet_pre_recipe seed 42] epoch 19 train 0.2666 val 0.2562 auc 0.9659
+  [C2_efficientnet_pre_recipe seed 42] epoch 20 train 0.2449 val 0.2585 auc 0.9641
+  [C2_efficientnet_pre_recipe seed 42] epoch 21 train 0.2202 val 0.2544 auc 0.9659
+  [C2_efficientnet_pre_recipe seed 42] epoch 22 train 0.2290 val 0.2610 auc 0.9621
+  [C2_efficientnet_pre_recipe seed 42] epoch 23 train 0.2375 val 0.2656 auc 0.9621
+  [C2_efficientnet_pre_recipe seed 42] epoch 24 train 0.2216 val 0.2862 auc 0.9537
+DONE C2_efficientnet_pre_recipe_seed42: val AUC 0.9674 | acc@0.5 0.9253 | false alarms at 0.90 recall 0.0564 | recall at -10/0/+10 dB 0.87/0.90/0.89 | 264.7 min
+
+Downloading: "https://download.pytorch.org/models/mobilenet_v3_small-047dcff4.pth" to /root/.cache/torch/hub/checkpoints/mobilenet_v3_small-047dcff4.pth
+100%|██████████| 9.83M/9.83M [00:00<00:00, 124MB/s]
+  [B6_mobilenet_norm_pre_recipe_3class seed 42] epoch 01 train 0.9119 val 0.7679 auc 0.9025 *
+  [B6_mobilenet_norm_pre_recipe_3class seed 42] epoch 02 train 0.7908 val 0.6302 auc 0.9180 *
+  [B6_mobilenet_norm_pre_recipe_3class seed 42] epoch 03 train 0.7411 val 0.6125 auc 0.9251 *
+  [B6_mobilenet_norm_pre_recipe_3class seed 42] epoch 04 train 0.6925 val 0.5392 auc 0.9401 *
+  [B6_mobilenet_norm_pre_recipe_3class seed 42] epoch 05 train 0.6602 val 0.5291 auc 0.9425 *
+  [B6_mobilenet_norm_pre_recipe_3class seed 42] epoch 06 train 0.6305 val 0.5164 auc 0.9479 *
+  [B6_mobilenet_norm_pre_recipe_3class seed 42] epoch 07 train 0.6081 val 0.5148 auc 0.9500 *
+  [B6_mobilenet_norm_pre_recipe_3class seed 42] epoch 08 train 0.5868 val 0.5023 auc 0.9477 *
+  [B6_mobilenet_norm_pre_recipe_3class seed 42] epoch 09 train 0.5661 val 0.5095 auc 0.9563
+  [B6_mobilenet_norm_pre_recipe_3class seed 42] epoch 10 train 0.5489 val 0.4682 auc 0.9502 *
+  [B6_mobilenet_norm_pre_recipe_3class seed 42] epoch 11 train 0.5525 val 0.4851 auc 0.9500
+  [B6_mobilenet_norm_pre_recipe_3class seed 42] epoch 12 train 0.5163 val 0.5349 auc 0.9414
+  [B6_mobilenet_norm_pre_recipe_3class seed 42] epoch 13 train 0.5153 val 0.4767 auc 0.9610
+  [B6_mobilenet_norm_pre_recipe_3class seed 42] epoch 14 train 0.4898 val 0.4474 auc 0.9578 *
+  [B6_mobilenet_norm_pre_recipe_3class seed 42] epoch 15 train 0.4583 val 0.4769 auc 0.9568
+  [B6_mobilenet_norm_pre_recipe_3class seed 42] epoch 16 train 0.4667 val 0.4502 auc 0.9560
+  [B6_mobilenet_norm_pre_recipe_3class seed 42] epoch 17 train 0.4811 val 0.4582 auc 0.9566
+  [B6_mobilenet_norm_pre_recipe_3class seed 42] epoch 18 train 0.4603 val 0.5220 auc 0.9485
+  [B6_mobilenet_norm_pre_recipe_3class seed 42] epoch 19 train 0.4791 val 0.4735 auc 0.9553
+  [B6_mobilenet_norm_pre_recipe_3class seed 42] epoch 20 train 0.4532 val 0.4555 auc 0.9547
+  [B6_mobilenet_norm_pre_recipe_3class seed 42] epoch 21 train 0.4159 val 0.4590 auc 0.9577
+  [B6_mobilenet_norm_pre_recipe_3class seed 42] epoch 22 train 0.4232 val 0.4244 auc 0.9626 *
+  [B6_mobilenet_norm_pre_recipe_3class seed 42] epoch 23 train 0.4148 val 0.4336 auc 0.9631
+  [B6_mobilenet_norm_pre_recipe_3class seed 42] epoch 24 train 0.4030 val 0.4348 auc 0.9608
+  [B6_mobilenet_norm_pre_recipe_3class seed 42] epoch 25 train 0.4150 val 0.4532 auc 0.9633
+  [B6_mobilenet_norm_pre_recipe_3class seed 42] epoch 26 train 0.3935 val 0.4443 auc 0.9563
+  [B6_mobilenet_norm_pre_recipe_3class seed 42] epoch 27 train 0.4045 val 0.4258 auc 0.9638
+  [B6_mobilenet_norm_pre_recipe_3class seed 42] epoch 28 train 0.3913 val 0.4278 auc 0.9635
+  [B6_mobilenet_norm_pre_recipe_3class seed 42] epoch 29 train 0.3838 val 0.4256 auc 0.9609
+  [B6_mobilenet_norm_pre_recipe_3class seed 42] epoch 30 train 0.3795 val 0.4286 auc 0.9617
+  [B6_mobilenet_norm_pre_recipe_3class seed 42] epoch 31 train 0.4074 val 0.4193 auc 0.9648 *
+  [B6_mobilenet_norm_pre_recipe_3class seed 42] epoch 32 train 0.3917 val 0.4127 auc 0.9641 *
+  [B6_mobilenet_norm_pre_recipe_3class seed 42] epoch 33 train 0.3937 val 0.4223 auc 0.9640
+  [B6_mobilenet_norm_pre_recipe_3class seed 42] epoch 34 train 0.3961 val 0.4142 auc 0.9634
+  [B6_mobilenet_norm_pre_recipe_3class seed 42] epoch 35 train 0.3736 val 0.4226 auc 0.9638
+  [B6_mobilenet_norm_pre_recipe_3class seed 42] epoch 36 train 0.3856 val 0.4124 auc 0.9637 *
+  [B6_mobilenet_norm_pre_recipe_3class seed 42] epoch 37 train 0.3477 val 0.4161 auc 0.9647
+  [B6_mobilenet_norm_pre_recipe_3class seed 42] epoch 38 train 0.3709 val 0.4147 auc 0.9644
+  [B6_mobilenet_norm_pre_recipe_3class seed 42] epoch 39 train 0.3639 val 0.4159 auc 0.9644
+  [B6_mobilenet_norm_pre_recipe_3class seed 42] epoch 40 train 0.3743 val 0.4160 auc 0.9643
+DONE B6_mobilenet_norm_pre_recipe_3class_seed42: val AUC 0.9637 | acc@0.5 0.9176 | false alarms at 0.90 recall 0.0821 | recall at -10/0/+10 dB 0.90/0.90/0.90 | 97.3 min
+
+  [B7_mobilenet_pre_recipe_3class seed 42] epoch 01 train 0.9159 val 0.7063 auc 0.9084 *
+  [B7_mobilenet_pre_recipe_3class seed 42] epoch 02 train 0.7877 val 0.5830 auc 0.9412 *
+  [B7_mobilenet_pre_recipe_3class seed 42] epoch 03 train 0.7313 val 0.5552 auc 0.9445 *
+  [B7_mobilenet_pre_recipe_3class seed 42] epoch 04 train 0.6754 val 0.4964 auc 0.9550 *
+  [B7_mobilenet_pre_recipe_3class seed 42] epoch 05 train 0.6304 val 0.5115 auc 0.9555
+  [B7_mobilenet_pre_recipe_3class seed 42] epoch 06 train 0.6193 val 0.4930 auc 0.9532 *
+  [B7_mobilenet_pre_recipe_3class seed 42] epoch 07 train 0.5913 val 0.4786 auc 0.9566 *
+  [B7_mobilenet_pre_recipe_3class seed 42] epoch 08 train 0.5792 val 0.4596 auc 0.9630 *
+  [B7_mobilenet_pre_recipe_3class seed 42] epoch 09 train 0.5640 val 0.4980 auc 0.9596
+  [B7_mobilenet_pre_recipe_3class seed 42] epoch 10 train 0.5404 val 0.4346 auc 0.9635 *
+  [B7_mobilenet_pre_recipe_3class seed 42] epoch 11 train 0.5440 val 0.4438 auc 0.9673
+  [B7_mobilenet_pre_recipe_3class seed 42] epoch 12 train 0.5096 val 0.4885 auc 0.9585
+  [B7_mobilenet_pre_recipe_3class seed 42] epoch 13 train 0.5014 val 0.4168 auc 0.9656 *
+  [B7_mobilenet_pre_recipe_3class seed 42] epoch 14 train 0.4995 val 0.4407 auc 0.9565
+  [B7_mobilenet_pre_recipe_3class seed 42] epoch 15 train 0.4763 val 0.4222 auc 0.9638
+  [B7_mobilenet_pre_recipe_3class seed 42] epoch 16 train 0.4732 val 0.4390 auc 0.9614
+  [B7_mobilenet_pre_recipe_3class seed 42] epoch 17 train 0.4839 val 0.4785 auc 0.9642
+  [B7_mobilenet_pre_recipe_3class seed 42] epoch 18 train 0.4658 val 0.4469 auc 0.9635
+  [B7_mobilenet_pre_recipe_3class seed 42] epoch 19 train 0.4895 val 0.4287 auc 0.9640
+  [B7_mobilenet_pre_recipe_3class seed 42] epoch 20 train 0.4537 val 0.4087 auc 0.9640 *
+  [B7_mobilenet_pre_recipe_3class seed 42] epoch 21 train 0.4199 val 0.4259 auc 0.9650
+  [B7_mobilenet_pre_recipe_3class seed 42] epoch 22 train 0.4237 val 0.4108 auc 0.9662
+  [B7_mobilenet_pre_recipe_3class seed 42] epoch 23 train 0.4267 val 0.4138 auc 0.9633
+  [B7_mobilenet_pre_recipe_3class seed 42] epoch 24 train 0.4110 val 0.4189 auc 0.9603
+  [B7_mobilenet_pre_recipe_3class seed 42] epoch 25 train 0.4214 val 0.4043 auc 0.9674 *
+  [B7_mobilenet_pre_recipe_3class seed 42] epoch 26 train 0.4017 val 0.4005 auc 0.9670 *
+  [B7_mobilenet_pre_recipe_3class seed 42] epoch 27 train 0.4064 val 0.4096 auc 0.9692
+  [B7_mobilenet_pre_recipe_3class seed 42] epoch 28 train 0.4008 val 0.4001 auc 0.9679 *
+  [B7_mobilenet_pre_recipe_3class seed 42] epoch 29 train 0.3934 val 0.4018 auc 0.9647
+  [B7_mobilenet_pre_recipe_3class seed 42] epoch 30 train 0.3897 val 0.3943 auc 0.9681 *
+  [B7_mobilenet_pre_recipe_3class seed 42] epoch 31 train 0.3999 val 0.4047 auc 0.9659
+  [B7_mobilenet_pre_recipe_3class seed 42] epoch 32 train 0.3962 val 0.3918 auc 0.9652 *
+  [B7_mobilenet_pre_recipe_3class seed 42] epoch 33 train 0.3992 val 0.3998 auc 0.9654
+  [B7_mobilenet_pre_recipe_3class seed 42] epoch 34 train 0.4001 val 0.3882 auc 0.9666 *
+  [B7_mobilenet_pre_recipe_3class seed 42] epoch 35 train 0.3729 val 0.4001 auc 0.9666
+  [B7_mobilenet_pre_recipe_3class seed 42] epoch 36 train 0.3947 val 0.3907 auc 0.9658
+  [B7_mobilenet_pre_recipe_3class seed 42] epoch 37 train 0.3540 val 0.3881 auc 0.9668 *
+  [B7_mobilenet_pre_recipe_3class seed 42] epoch 38 train 0.3833 val 0.3885 auc 0.9662
+  [B7_mobilenet_pre_recipe_3class seed 42] epoch 39 train 0.3682 val 0.3885 auc 0.9671
+  [B7_mobilenet_pre_recipe_3class seed 42] epoch 40 train 0.3831 val 0.3868 auc 0.9671 *
+DONE B7_mobilenet_pre_recipe_3class_seed42: val AUC 0.9671 | acc@0.5 0.9308 | false alarms at 0.90 recall 0.0564 | recall at -10/0/+10 dB 0.90/0.90/0.85 | 93.4 min
+
+  [B8_mobilenet_pre_recipe_gain seed 42] epoch 01 train 0.5616 val 0.4572 auc 0.9017 *
+  [B8_mobilenet_pre_recipe_gain seed 42] epoch 02 train 0.4904 val 0.3618 auc 0.9331 *
+  [B8_mobilenet_pre_recipe_gain seed 42] epoch 03 train 0.4606 val 0.3579 auc 0.9306 *
+  [B8_mobilenet_pre_recipe_gain seed 42] epoch 04 train 0.4291 val 0.3790 auc 0.9453
+  [B8_mobilenet_pre_recipe_gain seed 42] epoch 05 train 0.4097 val 0.3448 auc 0.9370 *
+  [B8_mobilenet_pre_recipe_gain seed 42] epoch 06 train 0.3922 val 0.3329 auc 0.9531 *
+  [B8_mobilenet_pre_recipe_gain seed 42] epoch 07 train 0.3802 val 0.3046 auc 0.9530 *
+  [B8_mobilenet_pre_recipe_gain seed 42] epoch 08 train 0.3770 val 0.3094 auc 0.9551
+  [B8_mobilenet_pre_recipe_gain seed 42] epoch 09 train 0.3716 val 0.3162 auc 0.9523
+  [B8_mobilenet_pre_recipe_gain seed 42] epoch 10 train 0.3494 val 0.2849 auc 0.9624 *
+  [B8_mobilenet_pre_recipe_gain seed 42] epoch 11 train 0.3580 val 0.2873 auc 0.9641
+  [B8_mobilenet_pre_recipe_gain seed 42] epoch 12 train 0.3306 val 0.2733 auc 0.9651 *
+  [B8_mobilenet_pre_recipe_gain seed 42] epoch 13 train 0.3244 val 0.2807 auc 0.9629
+  [B8_mobilenet_pre_recipe_gain seed 42] epoch 14 train 0.3224 val 0.2833 auc 0.9598
+  [B8_mobilenet_pre_recipe_gain seed 42] epoch 15 train 0.3076 val 0.2968 auc 0.9592
+  [B8_mobilenet_pre_recipe_gain seed 42] epoch 16 train 0.3096 val 0.2965 auc 0.9642
+  [B8_mobilenet_pre_recipe_gain seed 42] epoch 17 train 0.3051 val 0.2817 auc 0.9628
+  [B8_mobilenet_pre_recipe_gain seed 42] epoch 18 train 0.3048 val 0.2839 auc 0.9636
+  [B8_mobilenet_pre_recipe_gain seed 42] epoch 19 train 0.3079 val 0.2616 auc 0.9694 *
+  [B8_mobilenet_pre_recipe_gain seed 42] epoch 20 train 0.2860 val 0.2945 auc 0.9564
+  [B8_mobilenet_pre_recipe_gain seed 42] epoch 21 train 0.2689 val 0.2885 auc 0.9621
+  [B8_mobilenet_pre_recipe_gain seed 42] epoch 22 train 0.2710 val 0.2727 auc 0.9648
+  [B8_mobilenet_pre_recipe_gain seed 42] epoch 23 train 0.2821 val 0.2776 auc 0.9599
+  [B8_mobilenet_pre_recipe_gain seed 42] epoch 24 train 0.2658 val 0.2775 auc 0.9637
+  [B8_mobilenet_pre_recipe_gain seed 42] epoch 25 train 0.2728 val 0.2911 auc 0.9604
+  [B8_mobilenet_pre_recipe_gain seed 42] epoch 26 train 0.2622 val 0.2854 auc 0.9587
+  [B8_mobilenet_pre_recipe_gain seed 42] epoch 27 train 0.2677 val 0.2777 auc 0.9620
+  [B8_mobilenet_pre_recipe_gain seed 42] epoch 28 train 0.2577 val 0.2840 auc 0.9600
+  [B8_mobilenet_pre_recipe_gain seed 42] epoch 29 train 0.2574 val 0.2851 auc 0.9583
+DONE B8_mobilenet_pre_recipe_gain_seed42: val AUC 0.9694 | acc@0.5 0.9231 | false alarms at 0.90 recall 0.0615 | recall at -10/0/+10 dB 0.88/0.90/0.91 | 67.8 min
+
+
+######## cell 18 | src: def pm(s, digits=3):
+VALIDATION results (not test results)
+                              Setup        Pass  Seeds       ROC-AUC Accuracy @0.5 False alarms @0.90 recall Distress F1 @0.5    …on Normal     …on Noise  Best epoch
+                 A0_cnn_bilstm_run1  first pass      3 0.944 ± 0.005 0.882 ± 0.005             0.141 ± 0.013                                                         
+          A2_cnn_bilstm_norm_recipe  first pass      3 0.946 ± 0.003 0.885 ± 0.007             0.133 ± 0.019                                                         
+                  B0_mobilenet_run1  first pass      3 0.936 ± 0.001 0.874 ± 0.010             0.178 ± 0.009                                                         
+       B4_mobilenet_norm_pre_recipe  first pass      3 0.961 ± 0.006 0.913 ± 0.010             0.086 ± 0.024                                                         
+    C1_efficientnet_norm_pre_recipe  first pass      3 0.964 ± 0.002 0.919 ± 0.005             0.074 ± 0.004                                                         
+               A3_cnn_bilstm_recipe second pass      3 0.953 ± 0.004 0.895 ± 0.007             0.115 ± 0.014    0.854 ± 0.006 0.159 ± 0.017 0.066 ± 0.008  33.0 ± 3.5
+            B5_mobilenet_pre_recipe second pass      3 0.964 ± 0.008 0.917 ± 0.008             0.073 ± 0.017    0.881 ± 0.012 0.111 ± 0.031 0.031 ± 0.006 21.3 ± 12.1
+         C2_efficientnet_pre_recipe second pass      3 0.970 ± 0.003 0.931 ± 0.006             0.061 ± 0.023    0.901 ± 0.007 0.092 ± 0.034 0.027 ± 0.015  22.0 ± 8.0
+B6_mobilenet_norm_pre_recipe_3class second pass      3 0.962 ± 0.001 0.910 ± 0.007             0.086 ± 0.004    0.868 ± 0.014 0.131 ± 0.005 0.037 ± 0.008  34.7 ± 1.5
+     B7_mobilenet_pre_recipe_3class second pass      3 0.969 ± 0.001 0.927 ± 0.006             0.064 ± 0.008    0.894 ± 0.009 0.095 ± 0.011 0.030 ± 0.010 30.7 ± 10.1
+       B8_mobilenet_pre_recipe_gain second pass      3 0.970 ± 0.002 0.918 ± 0.004             0.072 ± 0.011    0.883 ± 0.006 0.106 ± 0.007 0.034 ± 0.018  25.7 ± 5.9
+
+######## cell 19 | src: # Effect of each change: a setup compared with its parent, seed by seed (same se
+                              Setup                   Compared with                                  Change  Seeds  ROC-AUC change  Seeds better (AUC)  False-alarm change  Seeds better (false alarms)
+               A3_cnn_bilstm_recipe       A2_cnn_bilstm_norm_recipe                    remove normalization      3          0.0064                   3             -0.0179                            1
+            B5_mobilenet_pre_recipe    B4_mobilenet_norm_pre_recipe                    remove normalization      3          0.0027                   3             -0.0135                            3
+         C2_efficientnet_pre_recipe C1_efficientnet_norm_pre_recipe                    remove normalization      3          0.0064                   3             -0.0131                            2
+B6_mobilenet_norm_pre_recipe_3class    B4_mobilenet_norm_pre_recipe                           three classes      3          0.0008                   1              0.0001                            1
+     B7_mobilenet_pre_recipe_3class         B5_mobilenet_pre_recipe                           three classes      3          0.0043                   2             -0.0090                            3
+       B8_mobilenet_pre_recipe_gain         B5_mobilenet_pre_recipe loudness change of ±12 dB on every clip      3          0.0056                   3             -0.0005                            1
+
+A positive ROC-AUC change and a negative false-alarm change are improvements. Count a change as helping only if it is better on most of the 3 seeds; otherwise report no clear effect.
+
+######## cell 21 | src: level_rows = []
+Recall at each level shift (threshold fixed at its 0 dB value):
+                              Setup  Recall -20 dB  Recall -10 dB  Recall -6 dB  Recall +0 dB  Recall +6 dB  Recall +10 dB  Recall +20 dB
+               A3_cnn_bilstm_recipe          0.388          0.801         0.869         0.901         0.901          0.863          0.616
+            B5_mobilenet_pre_recipe          0.720          0.867         0.888         0.901         0.892          0.882          0.841
+         C2_efficientnet_pre_recipe          0.655          0.863         0.883         0.901         0.901          0.893          0.793
+B6_mobilenet_norm_pre_recipe_3class          0.901          0.901         0.901         0.901         0.901          0.901          0.901
+     B7_mobilenet_pre_recipe_3class          0.763          0.881         0.896         0.901         0.895          0.876          0.821
+       B8_mobilenet_pre_recipe_gain          0.850          0.894         0.897         0.901         0.901          0.899          0.888 
+
+False alarms at each level shift (threshold fixed at its 0 dB value):
+                              Setup  False alarms -20 dB  False alarms -10 dB  False alarms -6 dB  False alarms +0 dB  False alarms +6 dB  False alarms +10 dB  False alarms +20 dB
+               A3_cnn_bilstm_recipe                0.044                0.098               0.110               0.115               0.132                0.138                0.159
+            B5_mobilenet_pre_recipe                0.078                0.081               0.076               0.073               0.083                0.094                0.139
+         C2_efficientnet_pre_recipe                0.033                0.048               0.053               0.061               0.064                0.073                0.082
+B6_mobilenet_norm_pre_recipe_3class                0.086                0.086               0.086               0.086               0.086                0.086                0.086
+     B7_mobilenet_pre_recipe_3class                0.077                0.084               0.074               0.064               0.071                0.073                0.117
+       B8_mobilenet_pre_recipe_gain                0.057                0.066               0.069               0.072               0.071                0.070                0.077 
+
+ROC-AUC at each level shift (threshold fixed at its 0 dB value):
+                              Setup  ROC-AUC -20 dB  ROC-AUC -10 dB  ROC-AUC -6 dB  ROC-AUC +0 dB  ROC-AUC +6 dB  ROC-AUC +10 dB  ROC-AUC +20 dB
+               A3_cnn_bilstm_recipe           0.872           0.929          0.944          0.953          0.947           0.929           0.835
+            B5_mobilenet_pre_recipe           0.923           0.954          0.960          0.964          0.963           0.958           0.930
+         C2_efficientnet_pre_recipe           0.930           0.963          0.968          0.970          0.969           0.966           0.942
+B6_mobilenet_norm_pre_recipe_3class           0.962           0.962          0.962          0.962          0.962           0.962           0.962
+     B7_mobilenet_pre_recipe_3class           0.921           0.958          0.965          0.969          0.966           0.963           0.934
+       B8_mobilenet_pre_recipe_gain           0.959           0.966          0.968          0.970          0.971           0.970           0.964 
+
+                              Setup Normalization  Largest recall change at ±10 dB  Largest false-alarm change at ±10 dB
+               A3_cnn_bilstm_recipe          none                            0.100                                 0.023
+            B5_mobilenet_pre_recipe          none                            0.034                                 0.021
+         C2_efficientnet_pre_recipe          none                            0.038                                 0.013
+B6_mobilenet_norm_pre_recipe_3class      per_clip                            0.000                                 0.000
+     B7_mobilenet_pre_recipe_3class          none                            0.025                                 0.020
+       B8_mobilenet_pre_recipe_gain          none                            0.007                                 0.006
+
+######## cell 23 | src: rank_rows = []
+                              setup   pass             model  seeds  val_roc_auc  false_alarms_at_090  recall_change_at_10dB  false_alarm_change_at_10dB     level_robust  parameters  cpu_ms_per_clip
+         C2_efficientnet_pre_recipe second   efficientnet_b0      3       0.9699               0.0609                  0.038                       0.013              yes     4010110             43.8
+       B8_mobilenet_pre_recipe_gain second mobilenetv3_small      3       0.9698               0.0722                  0.007                       0.006              yes     1519906             11.7
+     B7_mobilenet_pre_recipe_3class second mobilenetv3_small      3       0.9685               0.0638                  0.025                       0.020              yes     1519906             11.7
+            B5_mobilenet_pre_recipe second mobilenetv3_small      3       0.9642               0.0728                  0.034                       0.021              yes     1519906             11.7
+    C1_efficientnet_norm_pre_recipe  first   efficientnet_b0      3       0.9635               0.0740                  0.000                       0.000 yes (normalized)     4010110             43.8
+B6_mobilenet_norm_pre_recipe_3class second mobilenetv3_small      3       0.9623               0.0864                  0.000                       0.000              yes     1519906             11.7
+       B4_mobilenet_norm_pre_recipe  first mobilenetv3_small      3       0.9615               0.0863                  0.000                       0.000 yes (normalized)     1519906             11.7
+               A3_cnn_bilstm_recipe second        cnn_bilstm      3       0.9526               0.1153                  0.100                       0.023              yes     1221186             70.8
+          A2_cnn_bilstm_norm_recipe  first        cnn_bilstm      3       0.9462               0.1332                  0.000                       0.000 yes (normalized)     1221186             70.8
+                 A0_cnn_bilstm_run1  first        cnn_bilstm      3       0.9440               0.1407                    NaN                         NaN      not checked     1221186             70.8
+                  B0_mobilenet_run1  first mobilenetv3_small      3       0.9359               0.1779                    NaN                         NaN      not checked     1519906             11.7
+
+Leading setup that passes the loudness condition: C2_efficientnet_pre_recipe (validation ROC-AUC 0.9699)
+Before choosing it, check in Part 8 whether it is clearly ahead of the next smaller model on most seeds.
+These are validation results. The locked test set (id bf636617) and PVSD have not been used.
