@@ -1,0 +1,40 @@
+{
+ "decision": "No tuned setting met the rule. The Run 2 settings are kept.",
+ "chosen": "run2_settings",
+ "config": {
+  "model": "mobilenetv3_small",
+  "pretrained": true,
+  "norm": "none",
+  "optimizer": "adamw",
+  "lr": 0.0003,
+  "weight_decay": 0.01,
+  "batch_size": 16,
+  "schedule": "cosine",
+  "warmup": 2,
+  "max_epochs": 40,
+  "head_dropout": 0.2,
+  "label_smoothing": 0.02,
+  "mixup": 0.2,
+  "gain_db": 12.0,
+  "gain_prob": 1.0,
+  "shift_sec": 0.5,
+  "shift_prob": 0.5,
+  "time_mask_prob": 0.4,
+  "freq_mask_prob": 0.4,
+  "patience": 10,
+  "class_weighting": "balanced",
+  "time_mask_frac": 0.125,
+  "n_time_masks": 1,
+  "freq_mask_frac": 0.125,
+  "n_freq_masks": 1
+ },
+ "search_trials": 71,
+ "search_split_seed": 1,
+ "confirm_seeds": [
+  7,
+  21,
+  42
+ ],
+ "lock_id": "bf636617",
+ "rule": "mean validation ROC-AUC higher than the Run 2 settings, higher on at least 2 of 3 splits, recall and false-alarm change at \u00b110 dB within 0.1 at recall targets [0.9, 0.95]"
+}

@@ -1,0 +1,140 @@
+
+######## cell 2 | src: !pip -q install optuna
+[?25l   [90m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m [32m0.0/442.4 kB[0m [31m?[0m eta [36m-:--:--[0m[2K   [91m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m[91m╸[0m [32m440.3/442.4 kB[0m [31m15.9 MB/s[0m eta [36m0:00:01[0m[2K   [90m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m [32m442.4/442.4 kB[0m [31m10.5 MB/s[0m eta [36m0:00:00[0m
+[?25h[?25l   [90m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m [32m0.0/268.7 kB[0m [31m?[0m eta [36m-:--:--[0m[2K   [90m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━[0m [32m268.7/268.7 kB[0m [31m14.1 MB/s[0m eta [36m0:00:00[0m
+[?25h
+######## cell 3 | src: import os, re, copy, glob, hashlib, json, math, random, time
+Device: cuda | torch 2.11.0+cu130 | optuna 5.0.0
+
+######## cell 4 | src: # ---- Data and outputs ----------------------------------------------------
+Mounted at /content/drive
+Outputs: /content/drive/MyDrive/SONARA/hyperparameter_tuning
+
+######## cell 5 | src: # Download the repository (code + audio). Takes several minutes the first time.
+Cloning into '/content/SONARA-GITHUB'...
+remote: Enumerating objects: 6388, done.[K
+remote: Counting objects: 100% (6388/6388), done.[K
+remote: Compressing objects: 100% (6387/6387), done.[K
+remote: Total 6388 (delta 4), reused 6378 (delta 1), pack-reused 0 (from 0)[K
+Receiving objects: 100% (6388/6388), 2.54 GiB | 22.01 MiB/s, done.
+Resolving deltas: 100% (4/4), done.
+Updating files: 100% (6373/6373), done.
+Repo folder: /content/SONARA-GITHUB | exists: True
+
+######## cell 7 | src: SMARTEARS_NAME = re.compile(r"^(rpi\d+)-(\d{8})(\d{6})(?:-(\d+))?$")
+Loaded 6000 clips in 52s
+Locked test set: 871 clips, id bf636617 (not used here) | development set: 5129 clips
+seed 1 (search): train 4221 | val 908
+seed 7: train 4218 | val 911
+seed 21: train 4235 | val 894
+seed 42: train 4219 | val 910
+
+######## cell 9 | src: class LogMelDeltas(nn.Module):
+
+######## cell 11 | src: def suggest(trial):
+/tmp/ipykernel_512/402912421.py:50: ExperimentalWarning: Argument ``group`` is an experimental feature. The interface can change in the future.
+  sampler=optuna.samplers.TPESampler(seed=TUNE_SEED, n_startup_trials=25,
+[I 2026-10-16 06:42:14,754] Using an existing study with `study_name='sonara_b8_wide_v2'` instead of creating a new one.
+Trials finished so far: 67 | hours of training used: 20.3 of 20.0 | trials left: 133
+Search budget reached; continuing to the results.
+
+######## cell 12 | src: trials = study.trials_dataframe(attrs=("number", "value", "state", "params", "us
+Search: 71 trials, 30 completed, 37 stopped early
+Run 2 settings on the search split: validation ROC-AUC 0.9684
+
+Best completed trials (search split, validation ROC-AUC):
+ number   value  batch_size_power_of_2 class_weighting  freq_mask_frac  freq_mask_prob  gain_db  gain_prob  head_dropout  label_smoothing      lr  max_epochs  mixup  n_freq_masks  n_time_masks optimizer  patience schedule  sgd_lr  shift_prob  shift_sec  time_mask_frac  time_mask_prob  warmup  weight_decay
+      3 0.97328                      5        balanced           0.325             0.3     24.0      0.250       0.36042             0.19 0.00020          60    0.6             3             3      adam        15 constant     NaN        1.00       0.25           0.075             0.3     0.0       0.00000
+     47 0.97241                      6        balanced           0.350             0.2     21.0      0.250       0.40546             0.17 0.00050          70    0.6             3             3      adam        10 constant     NaN        0.75       0.50           0.075             0.4     0.0       0.00000
+     38 0.97200                      6        balanced           0.400             0.5     24.0      0.250       0.24663             0.16 0.00123          80    0.5             3             3      adam        15 constant     NaN        1.00       0.25           0.150             0.4     1.0       0.00001
+     27 0.97174                      5        balanced           0.400             0.6     24.0      0.250       0.14876             0.20 0.00028          60    0.5             3             3      adam        15 constant     NaN        1.00       0.25           0.125             0.2     1.0       0.00003
+     58 0.97117                      5        balanced           0.300             0.5     18.0      0.250       0.06642             0.19 0.00028          60    0.7             3             3      adam        20 constant     NaN        1.00       0.25           0.050             0.5     0.0       0.00001
+     34 0.97071                      6        balanced           0.300             0.4     21.0      0.250       0.37176             0.16 0.00068          80    0.8             3             3      adam        15 constant     NaN        1.00       0.25           0.050             0.3     1.0       0.00000
+     32 0.97037                      5        balanced           0.300             0.5     21.0      0.250       0.08447             0.18 0.00061          60    0.5             3             3      adam        15 constant     NaN        1.00       0.25           0.075             0.5     1.0       0.00001
+     54 0.96935                      6        balanced           0.275             0.4     18.0      0.375       0.08753             0.17 0.00100          50    0.4             3             3      adam        15 constant     NaN        1.00       0.25           0.075             0.4     1.0       0.00002
+     33 0.96923                      5        balanced           0.400             0.4     21.0      0.375       0.17694             0.18 0.00072          70    0.6             3             3      adam        15 constant     NaN        1.00       0.50           0.075             0.5     1.0       0.00000
+     23 0.96921                      5        balanced           0.325             0.3     24.0      0.250       0.36042             0.19 0.00020          60    0.6             3             3      adam        15 constant     NaN        1.00       0.25           0.075             0.3     0.0       0.00000
+
+######## cell 13 | src: # Which settings matter? Importance of each setting for the validation ROC-AUC (
+Importance of each setting for validation ROC-AUC (sums to 1):
+              setting  importance
+            gain_prob       0.159
+                mixup       0.116
+               warmup       0.095
+              gain_db       0.073
+       time_mask_prob       0.063
+            shift_sec       0.057
+         n_time_masks       0.048
+       freq_mask_frac       0.047
+         head_dropout       0.045
+         n_freq_masks       0.042
+batch_size_power_of_2       0.042
+         weight_decay       0.034
+      label_smoothing       0.031
+                   lr       0.030
+           max_epochs       0.029
+             patience       0.024
+       time_mask_frac       0.021
+           shift_prob       0.018
+       freq_mask_prob       0.016
+      class_weighting       0.006
+             schedule       0.004
+            optimizer       0.001
+               sgd_lr       0.000
+<Figure size 700x450 with 1 Axes>
+<Figure size 2000x1280 with 24 Axes>
+
+######## cell 15 | src: def choose_threshold(y, p, target):
+Settings to confirm: ['run2_settings', 'trial_3', 'trial_47', 'trial_38']
+skip (done): run2_settings_seed7
+skip (done): trial_3_seed7
+skip (done): trial_47_seed7
+Downloading: "https://download.pytorch.org/models/mobilenet_v3_small-047dcff4.pth" to /root/.cache/torch/hub/checkpoints/mobilenet_v3_small-047dcff4.pth
+100%|██████████| 9.83M/9.83M [00:00<00:00, 128MB/s]
+DONE trial_38_seed7: val AUC 0.9616 | acc@0.5 0.9166 | false alarms at 0.90 / 0.95 recall 0.0941 / 0.2134 | 6.6 min
+DONE run2_settings_seed21: val AUC 0.9723 | acc@0.5 0.9172 | false alarms at 0.90 / 0.95 recall 0.0711 / 0.1354 | 6.4 min
+DONE trial_3_seed21: val AUC 0.9668 | acc@0.5 0.9262 | false alarms at 0.90 / 0.95 recall 0.0660 / 0.1235 | 6.8 min
+DONE trial_47_seed21: val AUC 0.9689 | acc@0.5 0.9161 | false alarms at 0.90 / 0.95 recall 0.0660 / 0.1235 | 4.0 min
+DONE trial_38_seed21: val AUC 0.9698 | acc@0.5 0.8971 | false alarms at 0.90 / 0.95 recall 0.0846 / 0.1421 | 4.5 min
+DONE run2_settings_seed42: val AUC 0.9692 | acc@0.5 0.9253 | false alarms at 0.90 / 0.95 recall 0.0581 / 0.1333 | 4.6 min
+DONE trial_3_seed42: val AUC 0.9657 | acc@0.5 0.9143 | false alarms at 0.90 / 0.95 recall 0.0650 / 0.1504 | 6.8 min
+DONE trial_47_seed42: val AUC 0.9648 | acc@0.5 0.9154 | false alarms at 0.90 / 0.95 recall 0.0752 / 0.1744 | 3.7 min
+DONE trial_38_seed42: val AUC 0.9566 | acc@0.5 0.9220 | false alarms at 0.90 / 0.95 recall 0.0701 / 0.2205 | 5.3 min
+
+######## cell 17 | src: def pm(s, digits=4):
+CONFIRMATION on the Run 2 splits (validation results)
+     Settings  Seeds         ROC-AUC   Accuracy @0.5 Distress F1 @0.5 False alarms @0.90 recall False alarms @0.95 recall  ROC-AUC change vs Run 2 settings  Seeds better than Run 2 settings  Loudness condition met
+run2_settings      3 0.9704 ± 0.0017 0.9197 ± 0.0048  0.8867 ± 0.0088           0.0688 ± 0.0098           0.1344 ± 0.0010                            0.0000                               NaN                    True
+      trial_3      3 0.9657 ± 0.0011 0.9216 ± 0.0064  0.8898 ± 0.0043           0.0627 ± 0.0048           0.1462 ± 0.0209                           -0.0047                               0.0                    True
+     trial_47      3 0.9673 ± 0.0022 0.9149 ± 0.0015  0.8807 ± 0.0043           0.0734 ± 0.0067           0.1497 ± 0.0255                           -0.0031                               0.0                    True
+     trial_38      3 0.9627 ± 0.0066 0.9119 ± 0.0131  0.8748 ± 0.0148           0.0829 ± 0.0121           0.1920 ± 0.0434                           -0.0077                               0.0                    True
+
+No tuned setting met the rule. The Run 2 settings are kept.
+model              mobilenetv3_small
+pretrained                      True
+norm                            none
+optimizer                      adamw
+lr                            0.0003
+weight_decay                    0.01
+batch_size                        16
+schedule                      cosine
+warmup                             2
+max_epochs                        40
+head_dropout                     0.2
+label_smoothing                 0.02
+mixup                            0.2
+gain_db                         12.0
+gain_prob                        1.0
+shift_sec                        0.5
+shift_prob                       0.5
+time_mask_prob                   0.4
+freq_mask_prob                   0.4
+patience                          10
+class_weighting             balanced
+time_mask_frac                 0.125
+n_time_masks                       1
+freq_mask_frac                 0.125
+n_freq_masks                       1
+
+Saved chosen_system_model_config.json. The final evaluation notebook reads it.
+All results here are validation results. The locked test set and PVSD have not been used.
