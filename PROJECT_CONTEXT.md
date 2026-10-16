@@ -47,7 +47,7 @@ Local clone: `D:\SONARA-GITHUB` (an older clone existed at `D:\SONARA GITHUB`, n
 | `results/hyperparameter_tuning/` | Tuning record: `FINDINGS.md`, executed notebook, text outputs, `search_trials.csv`, `optuna_study.db`, importance CSV and figures, `confirm/*.json`, `confirmation_results.csv`, `chosen_system_model_config.json` | Committed |
 | `PROJECT_CONTEXT.md` | This file (no private details: the repo is public) | Committed |
 
-Merged pull requests: #1 Chapter 3 pipeline aligned with V2/V6 and 5-s clips · #2 Run 1 record + first-pass notebook · #3 first-pass record + second-pass notebook · #4 tuning notebook · #5 second-pass record + final evaluation · #6 widened hyperparameter search.
+Merged pull requests: #1 Chapter 3 pipeline aligned with V2/V6 and 5-s clips · #2 Run 1 record + first-pass notebook · #3 first-pass record + second-pass notebook · #4 tuning notebook · #5 second-pass record + final evaluation · #6 widened hyperparameter search · #7 tuning results + this context file.
 
 ### Google Drive (team account)
 
@@ -312,4 +312,4 @@ Per seed, C2 vs B8 ROC-AUC: 0.9691/0.9678, 0.9733/0.9723, 0.9674/0.9694 (tie). S
 - 14 Oct 2026: created after PR #6.
 - 16 Oct 2026: tuning results added (Run 2 settings kept); next step is the final evaluation.
 - 16 Oct 2026: tuning output files from the user's zip added to `results/hyperparameter_tuning/`; recorded CPU sessions and repeated trials.
-- 16 Oct 2026: removed Drive file IDs, the team email and private details before pushing (the repo is public); they are kept in Claude's local memory.
+- 16 Oct 2026: removed Drive file IDs, the team email and private details before pushing (the repo is public); they are kept in Claude's local memory. Merged as PR #7.
