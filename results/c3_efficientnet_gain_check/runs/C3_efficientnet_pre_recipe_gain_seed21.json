@@ -1,0 +1,71 @@
+{
+ "setup": "C3_efficientnet_pre_recipe_gain",
+ "seed": 21,
+ "lock_id": "bf636617",
+ "model": "efficientnet_b0",
+ "parent": "C2_efficientnet_pre_recipe",
+ "change": "loudness change of \u00b112 dB on every clip",
+ "norm": "none",
+ "pretrained": true,
+ "optimizer": "adamw",
+ "lr": 0.0003,
+ "weight_decay": 0.01,
+ "schedule": "cosine",
+ "max_epochs": 40,
+ "patience": 10,
+ "mixup": 0.2,
+ "three_class": false,
+ "gain_prob": 1.0,
+ "gain_db": 12.0,
+ "parameters": 4010110,
+ "epochs_run": 40,
+ "best_epoch": 39,
+ "best_val_loss": 0.2258788071889472,
+ "train_minutes": 14.981200126806895,
+ "val_roc_auc": 0.9758087483875291,
+ "val_pr_auc": 0.9556402876418154,
+ "val_accuracy_at_0.5": 0.9407158836689038,
+ "val_distress_f1_at_0.5": 0.9143780290791599,
+ "val_distress_recall_at_0.5": 0.933993399339934,
+ "threshold_for_recall_0.90": 0.75,
+ "val_false_alarm_rate_at_recall_0.90": 0.0338409475465313,
+ "val_false_alarms_normal": 0.04984423676012461,
+ "val_false_alarms_noise": 0.014814814814814815,
+ "level_check": {
+  "-20": {
+   "auc": 0.9707158533112196,
+   "recall": 0.834983498349835,
+   "false_alarms": 0.028764805414551606
+  },
+  "-10": {
+   "auc": 0.9763392582913113,
+   "recall": 0.8910891089108911,
+   "false_alarms": 0.030456852791878174
+  },
+  "-6": {
+   "auc": 0.9767636662143373,
+   "recall": 0.8943894389438944,
+   "false_alarms": 0.0338409475465313
+  },
+  "0": {
+   "auc": 0.9758087483875291,
+   "recall": 0.900990099009901,
+   "false_alarms": 0.0338409475465313
+  },
+  "6": {
+   "auc": 0.9735471009029836,
+   "recall": 0.8943894389438944,
+   "false_alarms": 0.038917089678511
+  },
+  "10": {
+   "auc": 0.9731729518129477,
+   "recall": 0.8910891089108911,
+   "false_alarms": 0.04060913705583756
+  },
+  "20": {
+   "auc": 0.9705315709235899,
+   "recall": 0.8514851485148515,
+   "false_alarms": 0.03553299492385787
+  }
+ }
+}
