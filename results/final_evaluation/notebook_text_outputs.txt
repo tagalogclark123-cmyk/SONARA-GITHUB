@@ -1,0 +1,701 @@
+
+######## cell 2 | src: import os, re, copy, glob, hashlib, json, math, random, time
+Device: cuda | torch 2.11.0+cu130 | torchvision 0.26.0+cu130
+
+######## cell 3 | src: # ---- Data and outputs ----------------------------------------------------
+Mounted at /content/drive
+Tuning decision: No tuned setting met the rule. The Run 2 settings are kept.
+Outputs: /content/drive/MyDrive/SONARA/final_evaluation
+                                          model            role optimizer      lr weight_decay batch_size class_weighting schedule warmup max_epochs patience head_dropout label_smoothing mixup gain_db gain_prob shift_sec shift_prob time_mask_prob time_mask_frac n_time_masks freq_mask_prob freq_mask_frac n_freq_masks
+B8_mobilenet_pre_recipe_gain  mobilenetv3_small    system model     adamw  0.0003         0.01         16        balanced   cosine      2         40       10          0.2            0.02   0.2    12.0       1.0       0.5        0.5            0.4          0.125            1            0.4          0.125            1
+C2_efficientnet_pre_recipe      efficientnet_b0       runner-up     adamw  0.0003         0.01         16        balanced   cosine      2         40       10          0.2            0.02   0.2     6.0       0.2       0.5        0.5            0.4          0.125            1            0.4          0.125            1
+A0_cnn_bilstm_run1                   cnn_bilstm  Run 1 baseline      adam  0.0001       0.0001         16        balanced  plateau      2         50        8          0.3            0.02   0.0     6.0       0.2       0.5        0.5            0.4          0.125            1            0.4          0.125            1
+
+######## cell 4 | src: # Download the repository (code + SmartEars and PVSD audio). Takes several minut
+Cloning into '/content/SONARA-GITHUB'...
+remote: Enumerating objects: 6414, done.[K
+remote: Counting objects: 100% (6414/6414), done.[K
+remote: Compressing objects: 100% (6403/6403), done.[K
+remote: Total 6414 (delta 14), reused 6402 (delta 11), pack-reused 0 (from 0)[K
+Receiving objects: 100% (6414/6414), 2.54 GiB | 29.91 MiB/s, done.
+Resolving deltas: 100% (14/14), done.
+Updating files: 100% (6396/6396), done.
+Repo folder: /content/SONARA-GITHUB | exists: True
+
+######## cell 6 | src: SMARTEARS_NAME = re.compile(r"^(rpi\d+)-(\d{8})(\d{6})(?:-(\d+))?$")
+dataset    original_label  source  
+PVSD       Healthy         Normal       139
+           Noise           Noise         86
+           Unhealthy       Distress     121
+SmartEars  Healthy         Normal      2000
+           None            Noise       2000
+           Sick            Distress    2000
+  loaded 1000/6346 clips (9s)
+  loaded 2000/6346 clips (18s)
+  loaded 3000/6346 clips (27s)
+  loaded 4000/6346 clips (36s)
+  loaded 5000/6346 clips (45s)
+  loaded 6000/6346 clips (54s)
+Loaded 6346 clips in 75s
+
+######## cell 8 | src: def grouped_folds(indices, n_splits, seed):
+Locked test set: 871 clips, id bf636617 | development set: 5129 clips | PVSD: 346 files
+seed 7: train 4218 [2808, 1410] | val 911 [595, 316]
+seed 21: train 4235 [2812, 1423] | val 894 [591, 303]
+seed 42: train 4219 [2818, 1401] | val 910 [585, 325]
+seed 77: train 4224 [2811, 1413] | val 905 [592, 313]
+seed 99: train 4213 [2816, 1397] | val 916 [587, 329]
+
+######## cell 10 | src: class LogMelDeltas(nn.Module):
+
+######## cell 12 | src: def run_epoch(model, loader, cfg, criterion, optimizer=None, level_offset_db=0.0
+skip (done): B8_mobilenet_pre_recipe_gain_seed7
+skip (done): C2_efficientnet_pre_recipe_seed7
+  [A0_cnn_bilstm_run1 seed 7] epoch 01 train 0.6200 val 0.5469 auc 0.8528 *
+  [A0_cnn_bilstm_run1 seed 7] epoch 02 train 0.5212 val 0.4490 auc 0.8849 *
+  [A0_cnn_bilstm_run1 seed 7] epoch 03 train 0.5029 val 0.5074 auc 0.8861
+  [A0_cnn_bilstm_run1 seed 7] epoch 04 train 0.4854 val 0.4830 auc 0.8834
+  [A0_cnn_bilstm_run1 seed 7] epoch 05 train 0.4681 val 0.4471 auc 0.8908 *
+  [A0_cnn_bilstm_run1 seed 7] epoch 06 train 0.4773 val 0.4687 auc 0.8831
+  [A0_cnn_bilstm_run1 seed 7] epoch 07 train 0.4627 val 0.4376 auc 0.8953 *
+  [A0_cnn_bilstm_run1 seed 7] epoch 08 train 0.4566 val 0.4680 auc 0.8884
+  [A0_cnn_bilstm_run1 seed 7] epoch 09 train 0.4390 val 0.4145 auc 0.9037 *
+  [A0_cnn_bilstm_run1 seed 7] epoch 10 train 0.4374 val 0.4649 auc 0.9043
+  [A0_cnn_bilstm_run1 seed 7] epoch 11 train 0.4286 val 0.4055 auc 0.9045 *
+  [A0_cnn_bilstm_run1 seed 7] epoch 12 train 0.4250 val 0.3877 auc 0.9139 *
+  [A0_cnn_bilstm_run1 seed 7] epoch 13 train 0.4137 val 0.3883 auc 0.9129
+  [A0_cnn_bilstm_run1 seed 7] epoch 14 train 0.4035 val 0.5297 auc 0.9121
+  [A0_cnn_bilstm_run1 seed 7] epoch 15 train 0.3975 val 0.4445 auc 0.9160
+  [A0_cnn_bilstm_run1 seed 7] epoch 16 train 0.3853 val 0.3995 auc 0.9231
+  [A0_cnn_bilstm_run1 seed 7] epoch 17 train 0.3827 val 0.4571 auc 0.9277
+  [A0_cnn_bilstm_run1 seed 7] epoch 18 train 0.3696 val 0.4250 auc 0.9252
+  [A0_cnn_bilstm_run1 seed 7] epoch 19 train 0.3625 val 0.3828 auc 0.9330 *
+  [A0_cnn_bilstm_run1 seed 7] epoch 20 train 0.3470 val 0.3924 auc 0.9300
+  [A0_cnn_bilstm_run1 seed 7] epoch 21 train 0.3443 val 0.3917 auc 0.9298
+  [A0_cnn_bilstm_run1 seed 7] epoch 22 train 0.3408 val 0.3709 auc 0.9318 *
+  [A0_cnn_bilstm_run1 seed 7] epoch 23 train 0.3426 val 0.3488 auc 0.9354 *
+  [A0_cnn_bilstm_run1 seed 7] epoch 24 train 0.3352 val 0.3522 auc 0.9373
+  [A0_cnn_bilstm_run1 seed 7] epoch 25 train 0.3348 val 0.3610 auc 0.9373
+  [A0_cnn_bilstm_run1 seed 7] epoch 26 train 0.3287 val 0.3595 auc 0.9392
+  [A0_cnn_bilstm_run1 seed 7] epoch 27 train 0.3257 val 0.3722 auc 0.9409
+  [A0_cnn_bilstm_run1 seed 7] epoch 28 train 0.3216 val 0.3450 auc 0.9412 *
+  [A0_cnn_bilstm_run1 seed 7] epoch 29 train 0.3176 val 0.3424 auc 0.9414 *
+  [A0_cnn_bilstm_run1 seed 7] epoch 30 train 0.3211 val 0.3533 auc 0.9417
+  [A0_cnn_bilstm_run1 seed 7] epoch 31 train 0.3193 val 0.3389 auc 0.9418 *
+  [A0_cnn_bilstm_run1 seed 7] epoch 32 train 0.3194 val 0.3599 auc 0.9411
+  [A0_cnn_bilstm_run1 seed 7] epoch 33 train 0.3116 val 0.3392 auc 0.9425
+  [A0_cnn_bilstm_run1 seed 7] epoch 34 train 0.3119 val 0.3522 auc 0.9425
+  [A0_cnn_bilstm_run1 seed 7] epoch 35 train 0.3152 val 0.3571 auc 0.9435
+  [A0_cnn_bilstm_run1 seed 7] epoch 36 train 0.3017 val 0.3393 auc 0.9447
+  [A0_cnn_bilstm_run1 seed 7] epoch 37 train 0.3089 val 0.3354 auc 0.9437 *
+  [A0_cnn_bilstm_run1 seed 7] epoch 38 train 0.3020 val 0.3492 auc 0.9439
+  [A0_cnn_bilstm_run1 seed 7] epoch 39 train 0.3013 val 0.3403 auc 0.9440
+  [A0_cnn_bilstm_run1 seed 7] epoch 40 train 0.3049 val 0.3392 auc 0.9439
+  [A0_cnn_bilstm_run1 seed 7] epoch 41 train 0.3006 val 0.3401 auc 0.9449
+  [A0_cnn_bilstm_run1 seed 7] epoch 42 train 0.3010 val 0.3325 auc 0.9451 *
+  [A0_cnn_bilstm_run1 seed 7] epoch 43 train 0.2960 val 0.3417 auc 0.9446
+  [A0_cnn_bilstm_run1 seed 7] epoch 44 train 0.3010 val 0.3464 auc 0.9443
+  [A0_cnn_bilstm_run1 seed 7] epoch 45 train 0.2978 val 0.3414 auc 0.9442
+  [A0_cnn_bilstm_run1 seed 7] epoch 46 train 0.3003 val 0.3376 auc 0.9451
+  [A0_cnn_bilstm_run1 seed 7] epoch 47 train 0.2955 val 0.3411 auc 0.9448
+  [A0_cnn_bilstm_run1 seed 7] epoch 48 train 0.2950 val 0.3412 auc 0.9448
+  [A0_cnn_bilstm_run1 seed 7] epoch 49 train 0.2933 val 0.3361 auc 0.9451
+  [A0_cnn_bilstm_run1 seed 7] epoch 50 train 0.2875 val 0.3401 auc 0.9448
+DONE A0_cnn_bilstm_run1_seed7: thresholds {'0.90': 0.44, '0.95': 0.18} | val AUC 0.9451 | 10.0 min
+
+Downloading: "https://download.pytorch.org/models/mobilenet_v3_small-047dcff4.pth" to /root/.cache/torch/hub/checkpoints/mobilenet_v3_small-047dcff4.pth
+100%|██████████| 9.83M/9.83M [00:00<00:00, 127MB/s]
+  [B8_mobilenet_pre_recipe_gain seed 21] epoch 01 train 0.5665 val 0.4307 auc 0.8939 *
+  [B8_mobilenet_pre_recipe_gain seed 21] epoch 02 train 0.4930 val 0.4088 auc 0.9090 *
+  [B8_mobilenet_pre_recipe_gain seed 21] epoch 03 train 0.4640 val 0.3355 auc 0.9445 *
+  [B8_mobilenet_pre_recipe_gain seed 21] epoch 04 train 0.4275 val 0.3397 auc 0.9434
+  [B8_mobilenet_pre_recipe_gain seed 21] epoch 05 train 0.4227 val 0.3284 auc 0.9517 *
+  [B8_mobilenet_pre_recipe_gain seed 21] epoch 06 train 0.3920 val 0.3347 auc 0.9582
+  [B8_mobilenet_pre_recipe_gain seed 21] epoch 07 train 0.3947 val 0.3069 auc 0.9548 *
+  [B8_mobilenet_pre_recipe_gain seed 21] epoch 08 train 0.3851 val 0.3151 auc 0.9535
+  [B8_mobilenet_pre_recipe_gain seed 21] epoch 09 train 0.3687 val 0.3232 auc 0.9525
+  [B8_mobilenet_pre_recipe_gain seed 21] epoch 10 train 0.3589 val 0.2975 auc 0.9595 *
+  [B8_mobilenet_pre_recipe_gain seed 21] epoch 11 train 0.3640 val 0.2997 auc 0.9567
+  [B8_mobilenet_pre_recipe_gain seed 21] epoch 12 train 0.3441 val 0.2934 auc 0.9644 *
+  [B8_mobilenet_pre_recipe_gain seed 21] epoch 13 train 0.3428 val 0.2855 auc 0.9614 *
+  [B8_mobilenet_pre_recipe_gain seed 21] epoch 14 train 0.3305 val 0.2874 auc 0.9653
+  [B8_mobilenet_pre_recipe_gain seed 21] epoch 15 train 0.3298 val 0.2796 auc 0.9635 *
+  [B8_mobilenet_pre_recipe_gain seed 21] epoch 16 train 0.3388 val 0.2709 auc 0.9692 *
+  [B8_mobilenet_pre_recipe_gain seed 21] epoch 17 train 0.3157 val 0.3184 auc 0.9519
+  [B8_mobilenet_pre_recipe_gain seed 21] epoch 18 train 0.2950 val 0.2665 auc 0.9667 *
+  [B8_mobilenet_pre_recipe_gain seed 21] epoch 19 train 0.2842 val 0.2910 auc 0.9667
+  [B8_mobilenet_pre_recipe_gain seed 21] epoch 20 train 0.3114 val 0.2735 auc 0.9652
+  [B8_mobilenet_pre_recipe_gain seed 21] epoch 21 train 0.2802 val 0.2896 auc 0.9659
+  [B8_mobilenet_pre_recipe_gain seed 21] epoch 22 train 0.2803 val 0.2702 auc 0.9682
+  [B8_mobilenet_pre_recipe_gain seed 21] epoch 23 train 0.2827 val 0.2725 auc 0.9658
+  [B8_mobilenet_pre_recipe_gain seed 21] epoch 24 train 0.2768 val 0.2908 auc 0.9664
+  [B8_mobilenet_pre_recipe_gain seed 21] epoch 25 train 0.2661 val 0.2697 auc 0.9659
+  [B8_mobilenet_pre_recipe_gain seed 21] epoch 26 train 0.2805 val 0.2640 auc 0.9710 *
+  [B8_mobilenet_pre_recipe_gain seed 21] epoch 27 train 0.2828 val 0.2924 auc 0.9684
+  [B8_mobilenet_pre_recipe_gain seed 21] epoch 28 train 0.2579 val 0.2642 auc 0.9685
+  [B8_mobilenet_pre_recipe_gain seed 21] epoch 29 train 0.2498 val 0.2699 auc 0.9707
+  [B8_mobilenet_pre_recipe_gain seed 21] epoch 30 train 0.2522 val 0.2611 auc 0.9723 *
+  [B8_mobilenet_pre_recipe_gain seed 21] epoch 31 train 0.2569 val 0.2674 auc 0.9692
+  [B8_mobilenet_pre_recipe_gain seed 21] epoch 32 train 0.2579 val 0.2649 auc 0.9695
+  [B8_mobilenet_pre_recipe_gain seed 21] epoch 33 train 0.2521 val 0.2762 auc 0.9684
+  [B8_mobilenet_pre_recipe_gain seed 21] epoch 34 train 0.2499 val 0.2700 auc 0.9693
+  [B8_mobilenet_pre_recipe_gain seed 21] epoch 35 train 0.2411 val 0.2738 auc 0.9676
+  [B8_mobilenet_pre_recipe_gain seed 21] epoch 36 train 0.2387 val 0.2713 auc 0.9682
+  [B8_mobilenet_pre_recipe_gain seed 21] epoch 37 train 0.2464 val 0.2703 auc 0.9691
+  [B8_mobilenet_pre_recipe_gain seed 21] epoch 38 train 0.2445 val 0.2685 auc 0.9681
+  [B8_mobilenet_pre_recipe_gain seed 21] epoch 39 train 0.2621 val 0.2657 auc 0.9690
+  [B8_mobilenet_pre_recipe_gain seed 21] epoch 40 train 0.2413 val 0.2637 auc 0.9690
+DONE B8_mobilenet_pre_recipe_gain_seed21: thresholds {'0.90': 0.49, '0.95': 0.155} | val AUC 0.9723 | 6.7 min
+
+Downloading: "https://download.pytorch.org/models/efficientnet_b0_rwightman-7f5810bc.pth" to /root/.cache/torch/hub/checkpoints/efficientnet_b0_rwightman-7f5810bc.pth
+100%|██████████| 20.5M/20.5M [00:00<00:00, 149MB/s]
+  [C2_efficientnet_pre_recipe seed 21] epoch 01 train 0.5364 val 0.4281 auc 0.9216 *
+  [C2_efficientnet_pre_recipe seed 21] epoch 02 train 0.4611 val 0.3176 auc 0.9516 *
+  [C2_efficientnet_pre_recipe seed 21] epoch 03 train 0.4371 val 0.3886 auc 0.9548
+  [C2_efficientnet_pre_recipe seed 21] epoch 04 train 0.3986 val 0.3259 auc 0.9551
+  [C2_efficientnet_pre_recipe seed 21] epoch 05 train 0.3880 val 0.2886 auc 0.9574 *
+  [C2_efficientnet_pre_recipe seed 21] epoch 06 train 0.3734 val 0.2824 auc 0.9707 *
+  [C2_efficientnet_pre_recipe seed 21] epoch 07 train 0.3594 val 0.2922 auc 0.9611
+  [C2_efficientnet_pre_recipe seed 21] epoch 08 train 0.3474 val 0.2662 auc 0.9726 *
+  [C2_efficientnet_pre_recipe seed 21] epoch 09 train 0.3222 val 0.2873 auc 0.9615
+  [C2_efficientnet_pre_recipe seed 21] epoch 10 train 0.3273 val 0.2766 auc 0.9659
+  [C2_efficientnet_pre_recipe seed 21] epoch 11 train 0.3124 val 0.2671 auc 0.9672
+  [C2_efficientnet_pre_recipe seed 21] epoch 12 train 0.2981 val 0.2744 auc 0.9692
+  [C2_efficientnet_pre_recipe seed 21] epoch 13 train 0.2826 val 0.2582 auc 0.9705 *
+  [C2_efficientnet_pre_recipe seed 21] epoch 14 train 0.2863 val 0.2706 auc 0.9579
+  [C2_efficientnet_pre_recipe seed 21] epoch 15 train 0.2841 val 0.2707 auc 0.9648
+  [C2_efficientnet_pre_recipe seed 21] epoch 16 train 0.2841 val 0.2558 auc 0.9684 *
+  [C2_efficientnet_pre_recipe seed 21] epoch 17 train 0.2672 val 0.3017 auc 0.9509
+  [C2_efficientnet_pre_recipe seed 21] epoch 18 train 0.2392 val 0.2563 auc 0.9654
+  [C2_efficientnet_pre_recipe seed 21] epoch 19 train 0.2228 val 0.2570 auc 0.9705
+  [C2_efficientnet_pre_recipe seed 21] epoch 20 train 0.2507 val 0.2391 auc 0.9723 *
+  [C2_efficientnet_pre_recipe seed 21] epoch 21 train 0.2202 val 0.2869 auc 0.9617
+  [C2_efficientnet_pre_recipe seed 21] epoch 22 train 0.2235 val 0.2423 auc 0.9660
+  [C2_efficientnet_pre_recipe seed 21] epoch 23 train 0.2293 val 0.2581 auc 0.9660
+  [C2_efficientnet_pre_recipe seed 21] epoch 24 train 0.2333 val 0.2765 auc 0.9626
+  [C2_efficientnet_pre_recipe seed 21] epoch 25 train 0.2167 val 0.2452 auc 0.9616
+  [C2_efficientnet_pre_recipe seed 21] epoch 26 train 0.2205 val 0.2505 auc 0.9623
+  [C2_efficientnet_pre_recipe seed 21] epoch 27 train 0.2401 val 0.2535 auc 0.9630
+  [C2_efficientnet_pre_recipe seed 21] epoch 28 train 0.2068 val 0.2716 auc 0.9665
+  [C2_efficientnet_pre_recipe seed 21] epoch 29 train 0.2060 val 0.2561 auc 0.9644
+  [C2_efficientnet_pre_recipe seed 21] epoch 30 train 0.2119 val 0.2338 auc 0.9733 *
+  [C2_efficientnet_pre_recipe seed 21] epoch 31 train 0.2112 val 0.2459 auc 0.9705
+  [C2_efficientnet_pre_recipe seed 21] epoch 32 train 0.2109 val 0.2439 auc 0.9689
+  [C2_efficientnet_pre_recipe seed 21] epoch 33 train 0.2134 val 0.2526 auc 0.9644
+  [C2_efficientnet_pre_recipe seed 21] epoch 34 train 0.2145 val 0.2652 auc 0.9616
+  [C2_efficientnet_pre_recipe seed 21] epoch 35 train 0.2001 val 0.2425 auc 0.9679
+  [C2_efficientnet_pre_recipe seed 21] epoch 36 train 0.1989 val 0.2408 auc 0.9704
+  [C2_efficientnet_pre_recipe seed 21] epoch 37 train 0.2154 val 0.2450 auc 0.9693
+  [C2_efficientnet_pre_recipe seed 21] epoch 38 train 0.1940 val 0.2507 auc 0.9660
+  [C2_efficientnet_pre_recipe seed 21] epoch 39 train 0.2200 val 0.2397 auc 0.9685
+  [C2_efficientnet_pre_recipe seed 21] epoch 40 train 0.1983 val 0.2490 auc 0.9686
+DONE C2_efficientnet_pre_recipe_seed21: thresholds {'0.90': 0.685, '0.95': 0.3} | val AUC 0.9733 | 14.1 min
+
+  [A0_cnn_bilstm_run1 seed 21] epoch 01 train 0.6131 val 0.5197 auc 0.8620 *
+  [A0_cnn_bilstm_run1 seed 21] epoch 02 train 0.5378 val 0.4772 auc 0.8792 *
+  [A0_cnn_bilstm_run1 seed 21] epoch 03 train 0.5184 val 0.4823 auc 0.8762
+  [A0_cnn_bilstm_run1 seed 21] epoch 04 train 0.4901 val 0.4975 auc 0.8810
+  [A0_cnn_bilstm_run1 seed 21] epoch 05 train 0.4805 val 0.4527 auc 0.8853 *
+  [A0_cnn_bilstm_run1 seed 21] epoch 06 train 0.4708 val 0.4369 auc 0.8996 *
+  [A0_cnn_bilstm_run1 seed 21] epoch 07 train 0.4684 val 0.5026 auc 0.8921
+  [A0_cnn_bilstm_run1 seed 21] epoch 08 train 0.4529 val 0.4714 auc 0.8962
+  [A0_cnn_bilstm_run1 seed 21] epoch 09 train 0.4518 val 0.4129 auc 0.9061 *
+  [A0_cnn_bilstm_run1 seed 21] epoch 10 train 0.4465 val 0.4304 auc 0.9024
+  [A0_cnn_bilstm_run1 seed 21] epoch 11 train 0.4393 val 0.3975 auc 0.9071 *
+  [A0_cnn_bilstm_run1 seed 21] epoch 12 train 0.4412 val 0.3990 auc 0.9104
+  [A0_cnn_bilstm_run1 seed 21] epoch 13 train 0.4221 val 0.3996 auc 0.9079
+  [A0_cnn_bilstm_run1 seed 21] epoch 14 train 0.4271 val 0.3852 auc 0.9185 *
+  [A0_cnn_bilstm_run1 seed 21] epoch 15 train 0.4174 val 0.3916 auc 0.9190
+  [A0_cnn_bilstm_run1 seed 21] epoch 16 train 0.4121 val 0.4011 auc 0.9269
+  [A0_cnn_bilstm_run1 seed 21] epoch 17 train 0.3949 val 0.4267 auc 0.9249
+  [A0_cnn_bilstm_run1 seed 21] epoch 18 train 0.3890 val 0.3775 auc 0.9243 *
+  [A0_cnn_bilstm_run1 seed 21] epoch 19 train 0.3793 val 0.3858 auc 0.9305
+  [A0_cnn_bilstm_run1 seed 21] epoch 20 train 0.3646 val 0.3390 auc 0.9383 *
+  [A0_cnn_bilstm_run1 seed 21] epoch 21 train 0.3651 val 0.3627 auc 0.9319
+  [A0_cnn_bilstm_run1 seed 21] epoch 22 train 0.3653 val 0.3496 auc 0.9407
+  [A0_cnn_bilstm_run1 seed 21] epoch 23 train 0.3540 val 0.3524 auc 0.9405
+  [A0_cnn_bilstm_run1 seed 21] epoch 24 train 0.3486 val 0.3730 auc 0.9447
+  [A0_cnn_bilstm_run1 seed 21] epoch 25 train 0.3397 val 0.3485 auc 0.9429
+  [A0_cnn_bilstm_run1 seed 21] epoch 26 train 0.3326 val 0.3516 auc 0.9438
+  [A0_cnn_bilstm_run1 seed 21] epoch 27 train 0.3237 val 0.3360 auc 0.9479 *
+  [A0_cnn_bilstm_run1 seed 21] epoch 28 train 0.3225 val 0.3437 auc 0.9462
+  [A0_cnn_bilstm_run1 seed 21] epoch 29 train 0.3268 val 0.3374 auc 0.9481
+  [A0_cnn_bilstm_run1 seed 21] epoch 30 train 0.3239 val 0.3368 auc 0.9470
+  [A0_cnn_bilstm_run1 seed 21] epoch 31 train 0.3177 val 0.3525 auc 0.9488
+  [A0_cnn_bilstm_run1 seed 21] epoch 32 train 0.3078 val 0.3370 auc 0.9483
+  [A0_cnn_bilstm_run1 seed 21] epoch 33 train 0.3115 val 0.3436 auc 0.9481
+  [A0_cnn_bilstm_run1 seed 21] epoch 34 train 0.3113 val 0.3412 auc 0.9486
+  [A0_cnn_bilstm_run1 seed 21] epoch 35 train 0.3151 val 0.3400 auc 0.9478
+DONE A0_cnn_bilstm_run1_seed21: thresholds {'0.90': 0.415, '0.95': 0.215} | val AUC 0.9479 | 7.1 min
+
+  [B8_mobilenet_pre_recipe_gain seed 42] epoch 01 train 0.5654 val 0.4654 auc 0.8962 *
+  [B8_mobilenet_pre_recipe_gain seed 42] epoch 02 train 0.4965 val 0.3740 auc 0.9211 *
+  [B8_mobilenet_pre_recipe_gain seed 42] epoch 03 train 0.4573 val 0.3551 auc 0.9346 *
+  [B8_mobilenet_pre_recipe_gain seed 42] epoch 04 train 0.4292 val 0.4201 auc 0.9358
+  [B8_mobilenet_pre_recipe_gain seed 42] epoch 05 train 0.4141 val 0.3519 auc 0.9397 *
+  [B8_mobilenet_pre_recipe_gain seed 42] epoch 06 train 0.3937 val 0.3252 auc 0.9556 *
+  [B8_mobilenet_pre_recipe_gain seed 42] epoch 07 train 0.3857 val 0.2863 auc 0.9620 *
+  [B8_mobilenet_pre_recipe_gain seed 42] epoch 08 train 0.3710 val 0.3489 auc 0.9489
+  [B8_mobilenet_pre_recipe_gain seed 42] epoch 09 train 0.3693 val 0.2991 auc 0.9569
+  [B8_mobilenet_pre_recipe_gain seed 42] epoch 10 train 0.3510 val 0.2886 auc 0.9625
+  [B8_mobilenet_pre_recipe_gain seed 42] epoch 11 train 0.3516 val 0.2945 auc 0.9604
+  [B8_mobilenet_pre_recipe_gain seed 42] epoch 12 train 0.3298 val 0.2732 auc 0.9634 *
+  [B8_mobilenet_pre_recipe_gain seed 42] epoch 13 train 0.3263 val 0.2841 auc 0.9604
+  [B8_mobilenet_pre_recipe_gain seed 42] epoch 14 train 0.3209 val 0.2760 auc 0.9619
+  [B8_mobilenet_pre_recipe_gain seed 42] epoch 15 train 0.2985 val 0.3201 auc 0.9618
+  [B8_mobilenet_pre_recipe_gain seed 42] epoch 16 train 0.3038 val 0.3015 auc 0.9630
+  [B8_mobilenet_pre_recipe_gain seed 42] epoch 17 train 0.3098 val 0.2739 auc 0.9686
+  [B8_mobilenet_pre_recipe_gain seed 42] epoch 18 train 0.3065 val 0.2749 auc 0.9608
+  [B8_mobilenet_pre_recipe_gain seed 42] epoch 19 train 0.3091 val 0.2563 auc 0.9692 *
+  [B8_mobilenet_pre_recipe_gain seed 42] epoch 20 train 0.2900 val 0.2934 auc 0.9536
+  [B8_mobilenet_pre_recipe_gain seed 42] epoch 21 train 0.2631 val 0.2783 auc 0.9621
+  [B8_mobilenet_pre_recipe_gain seed 42] epoch 22 train 0.2725 val 0.2682 auc 0.9641
+  [B8_mobilenet_pre_recipe_gain seed 42] epoch 23 train 0.2786 val 0.2762 auc 0.9598
+  [B8_mobilenet_pre_recipe_gain seed 42] epoch 24 train 0.2713 val 0.2735 auc 0.9624
+  [B8_mobilenet_pre_recipe_gain seed 42] epoch 25 train 0.2823 val 0.2754 auc 0.9633
+  [B8_mobilenet_pre_recipe_gain seed 42] epoch 26 train 0.2593 val 0.2797 auc 0.9650
+  [B8_mobilenet_pre_recipe_gain seed 42] epoch 27 train 0.2677 val 0.2689 auc 0.9675
+  [B8_mobilenet_pre_recipe_gain seed 42] epoch 28 train 0.2580 val 0.2731 auc 0.9651
+  [B8_mobilenet_pre_recipe_gain seed 42] epoch 29 train 0.2518 val 0.2717 auc 0.9612
+DONE B8_mobilenet_pre_recipe_gain_seed42: thresholds {'0.90': 0.535, '0.95': 0.24} | val AUC 0.9692 | 4.9 min
+
+  [C2_efficientnet_pre_recipe seed 42] epoch 01 train 0.5275 val 0.4087 auc 0.9211 *
+  [C2_efficientnet_pre_recipe seed 42] epoch 02 train 0.4730 val 0.3633 auc 0.9357 *
+  [C2_efficientnet_pre_recipe seed 42] epoch 03 train 0.4343 val 0.3513 auc 0.9350 *
+  [C2_efficientnet_pre_recipe seed 42] epoch 04 train 0.3952 val 0.3341 auc 0.9466 *
+  [C2_efficientnet_pre_recipe seed 42] epoch 05 train 0.3884 val 0.3234 auc 0.9441 *
+  [C2_efficientnet_pre_recipe seed 42] epoch 06 train 0.3747 val 0.2920 auc 0.9612 *
+  [C2_efficientnet_pre_recipe seed 42] epoch 07 train 0.3526 val 0.2958 auc 0.9650
+  [C2_efficientnet_pre_recipe seed 42] epoch 08 train 0.3430 val 0.2748 auc 0.9670 *
+  [C2_efficientnet_pre_recipe seed 42] epoch 09 train 0.3430 val 0.2854 auc 0.9613
+  [C2_efficientnet_pre_recipe seed 42] epoch 10 train 0.3240 val 0.2566 auc 0.9694 *
+  [C2_efficientnet_pre_recipe seed 42] epoch 11 train 0.3194 val 0.2667 auc 0.9657
+  [C2_efficientnet_pre_recipe seed 42] epoch 12 train 0.2893 val 0.2825 auc 0.9654
+  [C2_efficientnet_pre_recipe seed 42] epoch 13 train 0.2963 val 0.2758 auc 0.9656
+  [C2_efficientnet_pre_recipe seed 42] epoch 14 train 0.2762 val 0.2696 auc 0.9601
+  [C2_efficientnet_pre_recipe seed 42] epoch 15 train 0.2666 val 0.2990 auc 0.9645
+  [C2_efficientnet_pre_recipe seed 42] epoch 16 train 0.2621 val 0.2853 auc 0.9679
+  [C2_efficientnet_pre_recipe seed 42] epoch 17 train 0.2699 val 0.2731 auc 0.9603
+  [C2_efficientnet_pre_recipe seed 42] epoch 18 train 0.2500 val 0.2621 auc 0.9622
+  [C2_efficientnet_pre_recipe seed 42] epoch 19 train 0.2698 val 0.2704 auc 0.9609
+  [C2_efficientnet_pre_recipe seed 42] epoch 20 train 0.2465 val 0.2723 auc 0.9570
+DONE C2_efficientnet_pre_recipe_seed42: thresholds {'0.90': 0.535, '0.95': 0.195} | val AUC 0.9694 | 7.1 min
+
+  [A0_cnn_bilstm_run1 seed 42] epoch 01 train 0.6205 val 0.5220 auc 0.8794 *
+  [A0_cnn_bilstm_run1 seed 42] epoch 02 train 0.5522 val 0.5207 auc 0.8777 *
+  [A0_cnn_bilstm_run1 seed 42] epoch 03 train 0.5225 val 0.5525 auc 0.8527
+  [A0_cnn_bilstm_run1 seed 42] epoch 04 train 0.5026 val 0.5449 auc 0.8959
+  [A0_cnn_bilstm_run1 seed 42] epoch 05 train 0.4907 val 0.4465 auc 0.8988 *
+  [A0_cnn_bilstm_run1 seed 42] epoch 06 train 0.4774 val 0.4414 auc 0.8958 *
+  [A0_cnn_bilstm_run1 seed 42] epoch 07 train 0.4668 val 0.4325 auc 0.9054 *
+  [A0_cnn_bilstm_run1 seed 42] epoch 08 train 0.4680 val 0.5008 auc 0.8938
+  [A0_cnn_bilstm_run1 seed 42] epoch 09 train 0.4693 val 0.5168 auc 0.9040
+  [A0_cnn_bilstm_run1 seed 42] epoch 10 train 0.4491 val 0.4325 auc 0.9085
+  [A0_cnn_bilstm_run1 seed 42] epoch 11 train 0.4250 val 0.3858 auc 0.9143 *
+  [A0_cnn_bilstm_run1 seed 42] epoch 12 train 0.4252 val 0.3927 auc 0.9154
+  [A0_cnn_bilstm_run1 seed 42] epoch 13 train 0.4119 val 0.4180 auc 0.9103
+  [A0_cnn_bilstm_run1 seed 42] epoch 14 train 0.4199 val 0.4049 auc 0.9186
+  [A0_cnn_bilstm_run1 seed 42] epoch 15 train 0.3956 val 0.4022 auc 0.9217
+  [A0_cnn_bilstm_run1 seed 42] epoch 16 train 0.3916 val 0.3973 auc 0.9242
+  [A0_cnn_bilstm_run1 seed 42] epoch 17 train 0.3855 val 0.3836 auc 0.9203 *
+  [A0_cnn_bilstm_run1 seed 42] epoch 18 train 0.3836 val 0.3792 auc 0.9234 *
+  [A0_cnn_bilstm_run1 seed 42] epoch 19 train 0.3801 val 0.3736 auc 0.9286 *
+  [A0_cnn_bilstm_run1 seed 42] epoch 20 train 0.3822 val 0.3723 auc 0.9256 *
+  [A0_cnn_bilstm_run1 seed 42] epoch 21 train 0.3720 val 0.3841 auc 0.9279
+  [A0_cnn_bilstm_run1 seed 42] epoch 22 train 0.3719 val 0.3951 auc 0.9272
+  [A0_cnn_bilstm_run1 seed 42] epoch 23 train 0.3673 val 0.3827 auc 0.9281
+  [A0_cnn_bilstm_run1 seed 42] epoch 24 train 0.3655 val 0.3674 auc 0.9310 *
+  [A0_cnn_bilstm_run1 seed 42] epoch 25 train 0.3616 val 0.3628 auc 0.9329 *
+  [A0_cnn_bilstm_run1 seed 42] epoch 26 train 0.3558 val 0.3562 auc 0.9335 *
+  [A0_cnn_bilstm_run1 seed 42] epoch 27 train 0.3594 val 0.3684 auc 0.9324
+  [A0_cnn_bilstm_run1 seed 42] epoch 28 train 0.3578 val 0.3635 auc 0.9341
+  [A0_cnn_bilstm_run1 seed 42] epoch 29 train 0.3546 val 0.3671 auc 0.9341
+  [A0_cnn_bilstm_run1 seed 42] epoch 30 train 0.3452 val 0.3521 auc 0.9362 *
+  [A0_cnn_bilstm_run1 seed 42] epoch 31 train 0.3485 val 0.3608 auc 0.9350
+  [A0_cnn_bilstm_run1 seed 42] epoch 32 train 0.3431 val 0.3587 auc 0.9355
+  [A0_cnn_bilstm_run1 seed 42] epoch 33 train 0.3446 val 0.3647 auc 0.9351
+  [A0_cnn_bilstm_run1 seed 42] epoch 34 train 0.3414 val 0.3582 auc 0.9354
+  [A0_cnn_bilstm_run1 seed 42] epoch 35 train 0.3441 val 0.3585 auc 0.9361
+  [A0_cnn_bilstm_run1 seed 42] epoch 36 train 0.3384 val 0.3505 auc 0.9366 *
+  [A0_cnn_bilstm_run1 seed 42] epoch 37 train 0.3444 val 0.3526 auc 0.9362
+  [A0_cnn_bilstm_run1 seed 42] epoch 38 train 0.3391 val 0.3552 auc 0.9363
+  [A0_cnn_bilstm_run1 seed 42] epoch 39 train 0.3419 val 0.3560 auc 0.9379
+  [A0_cnn_bilstm_run1 seed 42] epoch 40 train 0.3361 val 0.3582 auc 0.9373
+  [A0_cnn_bilstm_run1 seed 42] epoch 41 train 0.3416 val 0.3535 auc 0.9374
+  [A0_cnn_bilstm_run1 seed 42] epoch 42 train 0.3382 val 0.3547 auc 0.9380
+  [A0_cnn_bilstm_run1 seed 42] epoch 43 train 0.3380 val 0.3463 auc 0.9378 *
+  [A0_cnn_bilstm_run1 seed 42] epoch 44 train 0.3385 val 0.3495 auc 0.9384
+  [A0_cnn_bilstm_run1 seed 42] epoch 45 train 0.3361 val 0.3507 auc 0.9385
+  [A0_cnn_bilstm_run1 seed 42] epoch 46 train 0.3401 val 0.3485 auc 0.9373
+  [A0_cnn_bilstm_run1 seed 42] epoch 47 train 0.3402 val 0.3519 auc 0.9385
+  [A0_cnn_bilstm_run1 seed 42] epoch 48 train 0.3393 val 0.3506 auc 0.9385
+  [A0_cnn_bilstm_run1 seed 42] epoch 49 train 0.3319 val 0.3522 auc 0.9376
+  [A0_cnn_bilstm_run1 seed 42] epoch 50 train 0.3347 val 0.3471 auc 0.9376
+DONE A0_cnn_bilstm_run1_seed42: thresholds {'0.90': 0.39, '0.95': 0.205} | val AUC 0.9378 | 10.0 min
+
+  [B8_mobilenet_pre_recipe_gain seed 77] epoch 01 train 0.5640 val 0.4138 auc 0.8968 *
+  [B8_mobilenet_pre_recipe_gain seed 77] epoch 02 train 0.5076 val 0.4303 auc 0.9234
+  [B8_mobilenet_pre_recipe_gain seed 77] epoch 03 train 0.4473 val 0.3968 auc 0.9145 *
+  [B8_mobilenet_pre_recipe_gain seed 77] epoch 04 train 0.4354 val 0.3201 auc 0.9474 *
+  [B8_mobilenet_pre_recipe_gain seed 77] epoch 05 train 0.4248 val 0.3207 auc 0.9497
+  [B8_mobilenet_pre_recipe_gain seed 77] epoch 06 train 0.3962 val 0.3210 auc 0.9547
+  [B8_mobilenet_pre_recipe_gain seed 77] epoch 07 train 0.3938 val 0.3195 auc 0.9483 *
+  [B8_mobilenet_pre_recipe_gain seed 77] epoch 08 train 0.3715 val 0.3365 auc 0.9532
+  [B8_mobilenet_pre_recipe_gain seed 77] epoch 09 train 0.3718 val 0.3218 auc 0.9588
+  [B8_mobilenet_pre_recipe_gain seed 77] epoch 10 train 0.3500 val 0.2974 auc 0.9616 *
+  [B8_mobilenet_pre_recipe_gain seed 77] epoch 11 train 0.3381 val 0.3070 auc 0.9529
+  [B8_mobilenet_pre_recipe_gain seed 77] epoch 12 train 0.3560 val 0.2990 auc 0.9617
+  [B8_mobilenet_pre_recipe_gain seed 77] epoch 13 train 0.3460 val 0.3048 auc 0.9613
+  [B8_mobilenet_pre_recipe_gain seed 77] epoch 14 train 0.3291 val 0.3119 auc 0.9531
+  [B8_mobilenet_pre_recipe_gain seed 77] epoch 15 train 0.3220 val 0.3128 auc 0.9599
+  [B8_mobilenet_pre_recipe_gain seed 77] epoch 16 train 0.3275 val 0.2907 auc 0.9599 *
+  [B8_mobilenet_pre_recipe_gain seed 77] epoch 17 train 0.3153 val 0.2822 auc 0.9651 *
+  [B8_mobilenet_pre_recipe_gain seed 77] epoch 18 train 0.2912 val 0.2940 auc 0.9602
+  [B8_mobilenet_pre_recipe_gain seed 77] epoch 19 train 0.3167 val 0.2764 auc 0.9661 *
+  [B8_mobilenet_pre_recipe_gain seed 77] epoch 20 train 0.2822 val 0.2864 auc 0.9626
+  [B8_mobilenet_pre_recipe_gain seed 77] epoch 21 train 0.2985 val 0.2680 auc 0.9689 *
+  [B8_mobilenet_pre_recipe_gain seed 77] epoch 22 train 0.2666 val 0.2798 auc 0.9637
+  [B8_mobilenet_pre_recipe_gain seed 77] epoch 23 train 0.2798 val 0.2831 auc 0.9640
+  [B8_mobilenet_pre_recipe_gain seed 77] epoch 24 train 0.2777 val 0.2859 auc 0.9617
+  [B8_mobilenet_pre_recipe_gain seed 77] epoch 25 train 0.2603 val 0.3013 auc 0.9630
+  [B8_mobilenet_pre_recipe_gain seed 77] epoch 26 train 0.2607 val 0.2736 auc 0.9683
+  [B8_mobilenet_pre_recipe_gain seed 77] epoch 27 train 0.2656 val 0.2897 auc 0.9616
+  [B8_mobilenet_pre_recipe_gain seed 77] epoch 28 train 0.2676 val 0.2797 auc 0.9628
+  [B8_mobilenet_pre_recipe_gain seed 77] epoch 29 train 0.2588 val 0.2745 auc 0.9652
+  [B8_mobilenet_pre_recipe_gain seed 77] epoch 30 train 0.2674 val 0.2877 auc 0.9602
+  [B8_mobilenet_pre_recipe_gain seed 77] epoch 31 train 0.2551 val 0.2848 auc 0.9629
+DONE B8_mobilenet_pre_recipe_gain_seed77: thresholds {'0.90': 0.3, '0.95': 0.145} | val AUC 0.9689 | 5.3 min
+
+  [C2_efficientnet_pre_recipe seed 77] epoch 01 train 0.5299 val 0.3974 auc 0.9229 *
+  [C2_efficientnet_pre_recipe seed 77] epoch 02 train 0.4699 val 0.3504 auc 0.9441 *
+  [C2_efficientnet_pre_recipe seed 77] epoch 03 train 0.4201 val 0.3564 auc 0.9363
+  [C2_efficientnet_pre_recipe seed 77] epoch 04 train 0.4095 val 0.2740 auc 0.9645 *
+  [C2_efficientnet_pre_recipe seed 77] epoch 05 train 0.4130 val 0.3023 auc 0.9607
+  [C2_efficientnet_pre_recipe seed 77] epoch 06 train 0.3717 val 0.2771 auc 0.9618
+  [C2_efficientnet_pre_recipe seed 77] epoch 07 train 0.3852 val 0.2833 auc 0.9637
+  [C2_efficientnet_pre_recipe seed 77] epoch 08 train 0.3408 val 0.3612 auc 0.9555
+  [C2_efficientnet_pre_recipe seed 77] epoch 09 train 0.3304 val 0.3022 auc 0.9533
+  [C2_efficientnet_pre_recipe seed 77] epoch 10 train 0.3062 val 0.2833 auc 0.9663
+  [C2_efficientnet_pre_recipe seed 77] epoch 11 train 0.2976 val 0.2668 auc 0.9660 *
+  [C2_efficientnet_pre_recipe seed 77] epoch 12 train 0.3192 val 0.3235 auc 0.9528
+  [C2_efficientnet_pre_recipe seed 77] epoch 13 train 0.3039 val 0.2785 auc 0.9548
+  [C2_efficientnet_pre_recipe seed 77] epoch 14 train 0.2934 val 0.2600 auc 0.9601 *
+  [C2_efficientnet_pre_recipe seed 77] epoch 15 train 0.2746 val 0.3165 auc 0.9675
+  [C2_efficientnet_pre_recipe seed 77] epoch 16 train 0.2714 val 0.3043 auc 0.9554
+  [C2_efficientnet_pre_recipe seed 77] epoch 17 train 0.2645 val 0.2625 auc 0.9712
+  [C2_efficientnet_pre_recipe seed 77] epoch 18 train 0.2538 val 0.2818 auc 0.9591
+  [C2_efficientnet_pre_recipe seed 77] epoch 19 train 0.2704 val 0.2817 auc 0.9667
+  [C2_efficientnet_pre_recipe seed 77] epoch 20 train 0.2328 val 0.2661 auc 0.9593
+  [C2_efficientnet_pre_recipe seed 77] epoch 21 train 0.2508 val 0.2539 auc 0.9692 *
+  [C2_efficientnet_pre_recipe seed 77] epoch 22 train 0.2225 val 0.2761 auc 0.9607
+  [C2_efficientnet_pre_recipe seed 77] epoch 23 train 0.2348 val 0.2508 auc 0.9713 *
+  [C2_efficientnet_pre_recipe seed 77] epoch 24 train 0.2207 val 0.2586 auc 0.9693
+  [C2_efficientnet_pre_recipe seed 77] epoch 25 train 0.2092 val 0.2660 auc 0.9703
+  [C2_efficientnet_pre_recipe seed 77] epoch 26 train 0.2097 val 0.2578 auc 0.9704
+  [C2_efficientnet_pre_recipe seed 77] epoch 27 train 0.2150 val 0.2512 auc 0.9668
+  [C2_efficientnet_pre_recipe seed 77] epoch 28 train 0.2145 val 0.2641 auc 0.9646
+  [C2_efficientnet_pre_recipe seed 77] epoch 29 train 0.2107 val 0.2461 auc 0.9714 *
+  [C2_efficientnet_pre_recipe seed 77] epoch 30 train 0.2209 val 0.2495 auc 0.9709
+  [C2_efficientnet_pre_recipe seed 77] epoch 31 train 0.2115 val 0.2662 auc 0.9689
+  [C2_efficientnet_pre_recipe seed 77] epoch 32 train 0.2215 val 0.2485 auc 0.9724
+  [C2_efficientnet_pre_recipe seed 77] epoch 33 train 0.2147 val 0.2390 auc 0.9710 *
+  [C2_efficientnet_pre_recipe seed 77] epoch 34 train 0.2045 val 0.2508 auc 0.9651
+  [C2_efficientnet_pre_recipe seed 77] epoch 35 train 0.2027 val 0.2499 auc 0.9713
+  [C2_efficientnet_pre_recipe seed 77] epoch 36 train 0.2080 val 0.2523 auc 0.9716
+  [C2_efficientnet_pre_recipe seed 77] epoch 37 train 0.1989 val 0.2607 auc 0.9695
+  [C2_efficientnet_pre_recipe seed 77] epoch 38 train 0.2067 val 0.2515 auc 0.9730
+  [C2_efficientnet_pre_recipe seed 77] epoch 39 train 0.2046 val 0.2451 auc 0.9722
+  [C2_efficientnet_pre_recipe seed 77] epoch 40 train 0.1977 val 0.2434 auc 0.9729
+DONE C2_efficientnet_pre_recipe_seed77: thresholds {'0.90': 0.645, '0.95': 0.125} | val AUC 0.9710 | 14.2 min
+
+  [A0_cnn_bilstm_run1 seed 77] epoch 01 train 0.6085 val 0.5948 auc 0.8520 *
+  [A0_cnn_bilstm_run1 seed 77] epoch 02 train 0.5347 val 0.4796 auc 0.8731 *
+  [A0_cnn_bilstm_run1 seed 77] epoch 03 train 0.5036 val 0.5418 auc 0.8605
+  [A0_cnn_bilstm_run1 seed 77] epoch 04 train 0.4920 val 0.4728 auc 0.8803 *
+  [A0_cnn_bilstm_run1 seed 77] epoch 05 train 0.4892 val 0.4756 auc 0.8847
+  [A0_cnn_bilstm_run1 seed 77] epoch 06 train 0.4684 val 0.5030 auc 0.8863
+  [A0_cnn_bilstm_run1 seed 77] epoch 07 train 0.4573 val 0.4268 auc 0.8996 *
+  [A0_cnn_bilstm_run1 seed 77] epoch 08 train 0.4393 val 0.4426 auc 0.8909
+  [A0_cnn_bilstm_run1 seed 77] epoch 09 train 0.4401 val 0.3963 auc 0.9067 *
+  [A0_cnn_bilstm_run1 seed 77] epoch 10 train 0.4321 val 0.4006 auc 0.9072
+  [A0_cnn_bilstm_run1 seed 77] epoch 11 train 0.4222 val 0.4247 auc 0.8970
+  [A0_cnn_bilstm_run1 seed 77] epoch 12 train 0.4286 val 0.4358 auc 0.9109
+  [A0_cnn_bilstm_run1 seed 77] epoch 13 train 0.3951 val 0.3925 auc 0.9151 *
+  [A0_cnn_bilstm_run1 seed 77] epoch 14 train 0.3920 val 0.3855 auc 0.9154 *
+  [A0_cnn_bilstm_run1 seed 77] epoch 15 train 0.3900 val 0.4536 auc 0.9109
+  [A0_cnn_bilstm_run1 seed 77] epoch 16 train 0.3842 val 0.3831 auc 0.9200 *
+  [A0_cnn_bilstm_run1 seed 77] epoch 17 train 0.3790 val 0.3893 auc 0.9230
+  [A0_cnn_bilstm_run1 seed 77] epoch 18 train 0.3851 val 0.3835 auc 0.9206
+  [A0_cnn_bilstm_run1 seed 77] epoch 19 train 0.3703 val 0.3887 auc 0.9234
+  [A0_cnn_bilstm_run1 seed 77] epoch 20 train 0.3543 val 0.3843 auc 0.9262
+  [A0_cnn_bilstm_run1 seed 77] epoch 21 train 0.3506 val 0.3739 auc 0.9297 *
+  [A0_cnn_bilstm_run1 seed 77] epoch 22 train 0.3562 val 0.3662 auc 0.9309 *
+  [A0_cnn_bilstm_run1 seed 77] epoch 23 train 0.3489 val 0.3646 auc 0.9342 *
+  [A0_cnn_bilstm_run1 seed 77] epoch 24 train 0.3414 val 0.3479 auc 0.9343 *
+  [A0_cnn_bilstm_run1 seed 77] epoch 25 train 0.3361 val 0.3854 auc 0.9356
+  [A0_cnn_bilstm_run1 seed 77] epoch 26 train 0.3326 val 0.3733 auc 0.9345
+  [A0_cnn_bilstm_run1 seed 77] epoch 27 train 0.3398 val 0.3683 auc 0.9360
+  [A0_cnn_bilstm_run1 seed 77] epoch 28 train 0.3245 val 0.3733 auc 0.9356
+  [A0_cnn_bilstm_run1 seed 77] epoch 29 train 0.3252 val 0.3532 auc 0.9376
+  [A0_cnn_bilstm_run1 seed 77] epoch 30 train 0.3225 val 0.3523 auc 0.9377
+  [A0_cnn_bilstm_run1 seed 77] epoch 31 train 0.3160 val 0.3541 auc 0.9365
+  [A0_cnn_bilstm_run1 seed 77] epoch 32 train 0.3194 val 0.3507 auc 0.9394
+DONE A0_cnn_bilstm_run1_seed77: thresholds {'0.90': 0.335, '0.95': 0.19} | val AUC 0.9343 | 6.4 min
+
+  [B8_mobilenet_pre_recipe_gain seed 99] epoch 01 train 0.5725 val 0.3916 auc 0.9242 *
+  [B8_mobilenet_pre_recipe_gain seed 99] epoch 02 train 0.5031 val 0.4303 auc 0.9386
+  [B8_mobilenet_pre_recipe_gain seed 99] epoch 03 train 0.4696 val 0.3212 auc 0.9509 *
+  [B8_mobilenet_pre_recipe_gain seed 99] epoch 04 train 0.4316 val 0.2957 auc 0.9639 *
+  [B8_mobilenet_pre_recipe_gain seed 99] epoch 05 train 0.4159 val 0.3085 auc 0.9626
+  [B8_mobilenet_pre_recipe_gain seed 99] epoch 06 train 0.3968 val 0.2810 auc 0.9629 *
+  [B8_mobilenet_pre_recipe_gain seed 99] epoch 07 train 0.3924 val 0.2834 auc 0.9645
+  [B8_mobilenet_pre_recipe_gain seed 99] epoch 08 train 0.3945 val 0.2652 auc 0.9685 *
+  [B8_mobilenet_pre_recipe_gain seed 99] epoch 09 train 0.3667 val 0.2751 auc 0.9699
+  [B8_mobilenet_pre_recipe_gain seed 99] epoch 10 train 0.3433 val 0.2695 auc 0.9650
+  [B8_mobilenet_pre_recipe_gain seed 99] epoch 11 train 0.3466 val 0.2903 auc 0.9644
+  [B8_mobilenet_pre_recipe_gain seed 99] epoch 12 train 0.3489 val 0.2553 auc 0.9693 *
+  [B8_mobilenet_pre_recipe_gain seed 99] epoch 13 train 0.3380 val 0.3009 auc 0.9605
+  [B8_mobilenet_pre_recipe_gain seed 99] epoch 14 train 0.3235 val 0.2644 auc 0.9661
+  [B8_mobilenet_pre_recipe_gain seed 99] epoch 15 train 0.3231 val 0.2516 auc 0.9697 *
+  [B8_mobilenet_pre_recipe_gain seed 99] epoch 16 train 0.3173 val 0.2668 auc 0.9698
+  [B8_mobilenet_pre_recipe_gain seed 99] epoch 17 train 0.2987 val 0.2666 auc 0.9659
+  [B8_mobilenet_pre_recipe_gain seed 99] epoch 18 train 0.2906 val 0.2591 auc 0.9700
+  [B8_mobilenet_pre_recipe_gain seed 99] epoch 19 train 0.3050 val 0.2965 auc 0.9648
+  [B8_mobilenet_pre_recipe_gain seed 99] epoch 20 train 0.2923 val 0.2701 auc 0.9674
+  [B8_mobilenet_pre_recipe_gain seed 99] epoch 21 train 0.2742 val 0.2531 auc 0.9692
+  [B8_mobilenet_pre_recipe_gain seed 99] epoch 22 train 0.3150 val 0.2671 auc 0.9651
+  [B8_mobilenet_pre_recipe_gain seed 99] epoch 23 train 0.2861 val 0.2696 auc 0.9652
+  [B8_mobilenet_pre_recipe_gain seed 99] epoch 24 train 0.2740 val 0.2569 auc 0.9686
+  [B8_mobilenet_pre_recipe_gain seed 99] epoch 25 train 0.2723 val 0.2687 auc 0.9661
+DONE B8_mobilenet_pre_recipe_gain_seed99: thresholds {'0.90': 0.43, '0.95': 0.18} | val AUC 0.9697 | 4.4 min
+
+  [C2_efficientnet_pre_recipe seed 99] epoch 01 train 0.5292 val 0.3773 auc 0.9432 *
+  [C2_efficientnet_pre_recipe seed 99] epoch 02 train 0.4854 val 0.3851 auc 0.9409
+  [C2_efficientnet_pre_recipe seed 99] epoch 03 train 0.4349 val 0.2935 auc 0.9636 *
+  [C2_efficientnet_pre_recipe seed 99] epoch 04 train 0.4035 val 0.2900 auc 0.9645 *
+  [C2_efficientnet_pre_recipe seed 99] epoch 05 train 0.3938 val 0.2689 auc 0.9715 *
+  [C2_efficientnet_pre_recipe seed 99] epoch 06 train 0.3742 val 0.2560 auc 0.9721 *
+  [C2_efficientnet_pre_recipe seed 99] epoch 07 train 0.3691 val 0.2644 auc 0.9679
+  [C2_efficientnet_pre_recipe seed 99] epoch 08 train 0.3620 val 0.2565 auc 0.9707
+  [C2_efficientnet_pre_recipe seed 99] epoch 09 train 0.3358 val 0.2597 auc 0.9718
+  [C2_efficientnet_pre_recipe seed 99] epoch 10 train 0.3243 val 0.2393 auc 0.9719 *
+  [C2_efficientnet_pre_recipe seed 99] epoch 11 train 0.3188 val 0.2572 auc 0.9721
+  [C2_efficientnet_pre_recipe seed 99] epoch 12 train 0.3057 val 0.2433 auc 0.9694
+  [C2_efficientnet_pre_recipe seed 99] epoch 13 train 0.2873 val 0.2584 auc 0.9697
+  [C2_efficientnet_pre_recipe seed 99] epoch 14 train 0.2909 val 0.2433 auc 0.9736
+  [C2_efficientnet_pre_recipe seed 99] epoch 15 train 0.2825 val 0.2306 auc 0.9775 *
+  [C2_efficientnet_pre_recipe seed 99] epoch 16 train 0.2683 val 0.2400 auc 0.9733
+  [C2_efficientnet_pre_recipe seed 99] epoch 17 train 0.2465 val 0.2457 auc 0.9718
+  [C2_efficientnet_pre_recipe seed 99] epoch 18 train 0.2541 val 0.2310 auc 0.9695
+  [C2_efficientnet_pre_recipe seed 99] epoch 19 train 0.2713 val 0.2391 auc 0.9697
+  [C2_efficientnet_pre_recipe seed 99] epoch 20 train 0.2488 val 0.2507 auc 0.9663
+  [C2_efficientnet_pre_recipe seed 99] epoch 21 train 0.2290 val 0.2514 auc 0.9644
+  [C2_efficientnet_pre_recipe seed 99] epoch 22 train 0.2665 val 0.2475 auc 0.9696
+  [C2_efficientnet_pre_recipe seed 99] epoch 23 train 0.2372 val 0.2298 auc 0.9764 *
+  [C2_efficientnet_pre_recipe seed 99] epoch 24 train 0.2244 val 0.2351 auc 0.9721
+  [C2_efficientnet_pre_recipe seed 99] epoch 25 train 0.2268 val 0.2394 auc 0.9690
+  [C2_efficientnet_pre_recipe seed 99] epoch 26 train 0.2205 val 0.2463 auc 0.9705
+  [C2_efficientnet_pre_recipe seed 99] epoch 27 train 0.2158 val 0.2314 auc 0.9738
+  [C2_efficientnet_pre_recipe seed 99] epoch 28 train 0.2299 val 0.2425 auc 0.9696
+  [C2_efficientnet_pre_recipe seed 99] epoch 29 train 0.2067 val 0.2457 auc 0.9739
+  [C2_efficientnet_pre_recipe seed 99] epoch 30 train 0.1958 val 0.2459 auc 0.9711
+  [C2_efficientnet_pre_recipe seed 99] epoch 31 train 0.2030 val 0.2466 auc 0.9658
+  [C2_efficientnet_pre_recipe seed 99] epoch 32 train 0.2066 val 0.2356 auc 0.9696
+  [C2_efficientnet_pre_recipe seed 99] epoch 33 train 0.1937 val 0.2387 auc 0.9704
+DONE C2_efficientnet_pre_recipe_seed99: thresholds {'0.90': 0.61, '0.95': 0.205} | val AUC 0.9764 | 11.7 min
+
+  [A0_cnn_bilstm_run1 seed 99] epoch 01 train 0.6198 val 0.5153 auc 0.8679 *
+  [A0_cnn_bilstm_run1 seed 99] epoch 02 train 0.5465 val 0.5431 auc 0.8613
+  [A0_cnn_bilstm_run1 seed 99] epoch 03 train 0.5190 val 0.5069 auc 0.8987 *
+  [A0_cnn_bilstm_run1 seed 99] epoch 04 train 0.4962 val 0.4410 auc 0.8967 *
+  [A0_cnn_bilstm_run1 seed 99] epoch 05 train 0.4857 val 0.4439 auc 0.9026
+  [A0_cnn_bilstm_run1 seed 99] epoch 06 train 0.4692 val 0.4169 auc 0.9089 *
+  [A0_cnn_bilstm_run1 seed 99] epoch 07 train 0.4603 val 0.4319 auc 0.8906
+  [A0_cnn_bilstm_run1 seed 99] epoch 08 train 0.4637 val 0.4036 auc 0.9121 *
+  [A0_cnn_bilstm_run1 seed 99] epoch 09 train 0.4499 val 0.4219 auc 0.9063
+  [A0_cnn_bilstm_run1 seed 99] epoch 10 train 0.4365 val 0.4386 auc 0.9142
+  [A0_cnn_bilstm_run1 seed 99] epoch 11 train 0.4390 val 0.3996 auc 0.9190 *
+  [A0_cnn_bilstm_run1 seed 99] epoch 12 train 0.4319 val 0.3860 auc 0.9222 *
+  [A0_cnn_bilstm_run1 seed 99] epoch 13 train 0.4204 val 0.3630 auc 0.9344 *
+  [A0_cnn_bilstm_run1 seed 99] epoch 14 train 0.4231 val 0.3673 auc 0.9344
+  [A0_cnn_bilstm_run1 seed 99] epoch 15 train 0.4106 val 0.4081 auc 0.9131
+  [A0_cnn_bilstm_run1 seed 99] epoch 16 train 0.4125 val 0.4116 auc 0.9347
+  [A0_cnn_bilstm_run1 seed 99] epoch 17 train 0.3899 val 0.3481 auc 0.9368 *
+  [A0_cnn_bilstm_run1 seed 99] epoch 18 train 0.3816 val 0.3406 auc 0.9441 *
+  [A0_cnn_bilstm_run1 seed 99] epoch 19 train 0.3748 val 0.3786 auc 0.9421
+  [A0_cnn_bilstm_run1 seed 99] epoch 20 train 0.3702 val 0.3599 auc 0.9481
+  [A0_cnn_bilstm_run1 seed 99] epoch 21 train 0.3696 val 0.3260 auc 0.9471 *
+  [A0_cnn_bilstm_run1 seed 99] epoch 22 train 0.3594 val 0.3126 auc 0.9508 *
+  [A0_cnn_bilstm_run1 seed 99] epoch 23 train 0.3605 val 0.3392 auc 0.9533
+  [A0_cnn_bilstm_run1 seed 99] epoch 24 train 0.3535 val 0.3225 auc 0.9485
+  [A0_cnn_bilstm_run1 seed 99] epoch 25 train 0.3562 val 0.3244 auc 0.9479
+  [A0_cnn_bilstm_run1 seed 99] epoch 26 train 0.3364 val 0.3128 auc 0.9519
+  [A0_cnn_bilstm_run1 seed 99] epoch 27 train 0.3347 val 0.3266 auc 0.9547
+  [A0_cnn_bilstm_run1 seed 99] epoch 28 train 0.3341 val 0.2993 auc 0.9545 *
+  [A0_cnn_bilstm_run1 seed 99] epoch 29 train 0.3335 val 0.3280 auc 0.9565
+  [A0_cnn_bilstm_run1 seed 99] epoch 30 train 0.3250 val 0.2996 auc 0.9582
+  [A0_cnn_bilstm_run1 seed 99] epoch 31 train 0.3233 val 0.2944 auc 0.9566 *
+  [A0_cnn_bilstm_run1 seed 99] epoch 32 train 0.3289 val 0.3158 auc 0.9588
+  [A0_cnn_bilstm_run1 seed 99] epoch 33 train 0.3182 val 0.2886 auc 0.9592 *
+  [A0_cnn_bilstm_run1 seed 99] epoch 34 train 0.3117 val 0.2948 auc 0.9591
+  [A0_cnn_bilstm_run1 seed 99] epoch 35 train 0.3157 val 0.2942 auc 0.9604
+  [A0_cnn_bilstm_run1 seed 99] epoch 36 train 0.3117 val 0.2845 auc 0.9597 *
+  [A0_cnn_bilstm_run1 seed 99] epoch 37 train 0.3058 val 0.2872 auc 0.9602
+  [A0_cnn_bilstm_run1 seed 99] epoch 38 train 0.3039 val 0.2879 auc 0.9598
+  [A0_cnn_bilstm_run1 seed 99] epoch 39 train 0.3068 val 0.2990 auc 0.9576
+  [A0_cnn_bilstm_run1 seed 99] epoch 40 train 0.2961 val 0.3050 auc 0.9600
+  [A0_cnn_bilstm_run1 seed 99] epoch 41 train 0.2967 val 0.2830 auc 0.9631 *
+  [A0_cnn_bilstm_run1 seed 99] epoch 42 train 0.2941 val 0.2746 auc 0.9656 *
+  [A0_cnn_bilstm_run1 seed 99] epoch 43 train 0.2934 val 0.2879 auc 0.9631
+  [A0_cnn_bilstm_run1 seed 99] epoch 44 train 0.2891 val 0.2805 auc 0.9668
+  [A0_cnn_bilstm_run1 seed 99] epoch 45 train 0.2932 val 0.2753 auc 0.9654
+  [A0_cnn_bilstm_run1 seed 99] epoch 46 train 0.2769 val 0.2790 auc 0.9660
+  [A0_cnn_bilstm_run1 seed 99] epoch 47 train 0.2823 val 0.2864 auc 0.9639
+  [A0_cnn_bilstm_run1 seed 99] epoch 48 train 0.2816 val 0.2723 auc 0.9665 *
+  [A0_cnn_bilstm_run1 seed 99] epoch 49 train 0.2872 val 0.2770 auc 0.9668
+  [A0_cnn_bilstm_run1 seed 99] epoch 50 train 0.2836 val 0.2832 auc 0.9654
+DONE A0_cnn_bilstm_run1_seed99: thresholds {'0.90': 0.48, '0.95': 0.26} | val AUC 0.9665 | 9.9 min
+
+
+######## cell 14 | src: def md5_file(path):
+Frozen 15 runs, fingerprint 2dbc43ca6501. System model: B8_mobilenet_pre_recipe_gain
+                                      0.90   0.95
+B8_mobilenet_pre_recipe_gain_seed7   0.555  0.270
+B8_mobilenet_pre_recipe_gain_seed21  0.490  0.155
+B8_mobilenet_pre_recipe_gain_seed42  0.535  0.240
+B8_mobilenet_pre_recipe_gain_seed77  0.300  0.145
+B8_mobilenet_pre_recipe_gain_seed99  0.430  0.180
+C2_efficientnet_pre_recipe_seed7     0.480  0.125
+C2_efficientnet_pre_recipe_seed21    0.685  0.300
+C2_efficientnet_pre_recipe_seed42    0.535  0.195
+C2_efficientnet_pre_recipe_seed77    0.645  0.125
+C2_efficientnet_pre_recipe_seed99    0.610  0.205
+A0_cnn_bilstm_run1_seed7             0.440  0.180
+A0_cnn_bilstm_run1_seed21            0.415  0.215
+A0_cnn_bilstm_run1_seed42            0.390  0.205
+A0_cnn_bilstm_run1_seed77            0.335  0.190
+A0_cnn_bilstm_run1_seed99            0.480  0.260
+
+######## cell 16 | src: log_path = os.path.join(OUT_DIR, "test_opened_log.json")
+Test data opening #1 logged.
+scored B8_mobilenet_pre_recipe_gain_seed7: test AUC 0.9623 | PVSD AUC 0.8893
+scored B8_mobilenet_pre_recipe_gain_seed21: test AUC 0.9648 | PVSD AUC 0.7553
+scored B8_mobilenet_pre_recipe_gain_seed42: test AUC 0.9637 | PVSD AUC 0.7744
+scored B8_mobilenet_pre_recipe_gain_seed77: test AUC 0.9656 | PVSD AUC 0.8105
+scored B8_mobilenet_pre_recipe_gain_seed99: test AUC 0.9516 | PVSD AUC 0.8957
+scored C2_efficientnet_pre_recipe_seed7: test AUC 0.9660 | PVSD AUC 0.8304
+scored C2_efficientnet_pre_recipe_seed21: test AUC 0.9718 | PVSD AUC 0.8163
+scored C2_efficientnet_pre_recipe_seed42: test AUC 0.9690 | PVSD AUC 0.8480
+scored C2_efficientnet_pre_recipe_seed77: test AUC 0.9708 | PVSD AUC 0.8613
+scored C2_efficientnet_pre_recipe_seed99: test AUC 0.9693 | PVSD AUC 0.8076
+scored A0_cnn_bilstm_run1_seed7: test AUC 0.9409 | PVSD AUC 0.7479
+scored A0_cnn_bilstm_run1_seed21: test AUC 0.9320 | PVSD AUC 0.8620
+scored A0_cnn_bilstm_run1_seed42: test AUC 0.9240 | PVSD AUC 0.7515
+scored A0_cnn_bilstm_run1_seed77: test AUC 0.9320 | PVSD AUC 0.7677
+scored A0_cnn_bilstm_run1_seed99: test AUC 0.9397 | PVSD AUC 0.8098
+
+######## cell 18 | src: def metrics_at(y, p, thr):
+
+######## cell 19 | src: # What changes for the system model when the target goes from 90% to 95% recall.
+
+######## cell 20 | src: # The same models at threshold 0.5, and false alarms by source category.
+Locked test set at threshold 0.5:
+                               Model      Accuracy      Macro-F1 Distress recall Distress precision   Distress F1           FNR           FPR
+MobileNetV3-Small (B8, system model) 0.911 ± 0.007 0.898 ± 0.009   0.866 ± 0.031      0.854 ± 0.016 0.860 ± 0.013 0.134 ± 0.031 0.068 ± 0.011
+                EfficientNet-B0 (C2) 0.930 ± 0.004 0.919 ± 0.004   0.893 ± 0.015      0.886 ± 0.016 0.889 ± 0.006 0.107 ± 0.015 0.053 ± 0.009
+     CNN-BiLSTM, Run 1 settings (A0) 0.880 ± 0.005 0.863 ± 0.006   0.846 ± 0.019      0.788 ± 0.014 0.816 ± 0.008 0.154 ± 0.019 0.105 ± 0.010
+
+Share of test clips flagged as Distress, by source category:
+Target recall                                Model Distress clips flagged (recall) Normal clips flagged Noise clips flagged
+         0.90 MobileNetV3-Small (B8, system model)                   0.873 ± 0.016        0.102 ± 0.013       0.038 ± 0.011
+         0.90                 EfficientNet-B0 (C2)                   0.876 ± 0.031        0.086 ± 0.016       0.012 ± 0.009
+         0.90      CNN-BiLSTM, Run 1 settings (A0)                   0.872 ± 0.008        0.195 ± 0.028       0.079 ± 0.016
+         0.95 MobileNetV3-Small (B8, system model)                   0.942 ± 0.012        0.197 ± 0.031       0.070 ± 0.020
+         0.95                 EfficientNet-B0 (C2)                   0.941 ± 0.021        0.168 ± 0.047       0.055 ± 0.041
+         0.95      CNN-BiLSTM, Run 1 settings (A0)                   0.924 ± 0.009        0.334 ± 0.046       0.138 ± 0.042
+
+######## cell 21 | src: # Paired comparison: the system model against each other model, seed by seed (sa
+
+######## cell 22 | src: # Loudness check on the locked test set (each run's threshold held fixed).
+Recall on the locked test set with the recording level shifted (mean over seeds):
+Target recall                                Model  Recall -20 dB  Recall -10 dB  Recall -6 dB  Recall +0 dB  Recall +6 dB  Recall +10 dB  Recall +20 dB
+         0.90 MobileNetV3-Small (B8, system model)          0.836          0.867         0.875         0.873         0.880          0.884          0.882
+         0.90                 EfficientNet-B0 (C2)          0.649          0.820         0.858         0.876         0.870          0.857          0.661
+         0.90      CNN-BiLSTM, Run 1 settings (A0)          0.199          0.679         0.808         0.872         0.864          0.795          0.525
+         0.95 MobileNetV3-Small (B8, system model)          0.924          0.935         0.936         0.942         0.942          0.946          0.954
+         0.95                 EfficientNet-B0 (C2)          0.836          0.923         0.934         0.941         0.947          0.945          0.886
+         0.95      CNN-BiLSTM, Run 1 settings (A0)          0.439          0.819         0.891         0.924         0.935          0.914          0.739 
+
+FPR on the locked test set with the recording level shifted (mean over seeds):
+Target recall                                Model  FPR -20 dB  FPR -10 dB  FPR -6 dB  FPR +0 dB  FPR +6 dB  FPR +10 dB  FPR +20 dB
+         0.90 MobileNetV3-Small (B8, system model)       0.061       0.067      0.067      0.069      0.070       0.073       0.087
+         0.90                 EfficientNet-B0 (C2)       0.026       0.045      0.047      0.048      0.053       0.056       0.051
+         0.90      CNN-BiLSTM, Run 1 settings (A0)       0.017       0.078      0.103      0.136      0.174       0.214       0.203
+         0.95 MobileNetV3-Small (B8, system model)       0.123       0.126      0.128      0.132      0.138       0.143       0.175
+         0.95                 EfficientNet-B0 (C2)       0.102       0.103      0.106      0.110      0.132       0.151       0.165
+         0.95      CNN-BiLSTM, Run 1 settings (A0)       0.115       0.165      0.199      0.234      0.304       0.354       0.340 
+
+ROC-AUC on the locked test set with the recording level shifted (mean over seeds):
+Target recall                                Model  ROC-AUC -20 dB  ROC-AUC -10 dB  ROC-AUC -6 dB  ROC-AUC +0 dB  ROC-AUC +6 dB  ROC-AUC +10 dB  ROC-AUC +20 dB
+         0.90 MobileNetV3-Small (B8, system model)           0.956           0.960          0.961          0.962          0.962           0.961           0.959
+         0.90                 EfficientNet-B0 (C2)           0.935           0.961          0.967          0.969          0.967           0.961           0.928
+         0.90      CNN-BiLSTM, Run 1 settings (A0)           0.757           0.903          0.922          0.934          0.920           0.883           0.775
+         0.95 MobileNetV3-Small (B8, system model)           0.956           0.960          0.961          0.962          0.962           0.961           0.959
+         0.95                 EfficientNet-B0 (C2)           0.935           0.961          0.967          0.969          0.967           0.961           0.928
+         0.95      CNN-BiLSTM, Run 1 settings (A0)           0.757           0.903          0.922          0.934          0.920           0.883           0.775 
+
+<Figure size 1200x400 with 2 Axes>
+
+######## cell 23 | src: # ROC curves, and the system model's confusion matrix at each operating point (p
+<Figure size 1650x450 with 3 Axes>
+
+######## cell 25 | src: if len(pvsd_idx) == 0:
+PVSD: 346 files (Non-distress 225, Distress 121); always predicting Non-distress scores 0.650 accuracy
+Target recall                                Model      Accuracy Distress recall           FPR       ROC-AUC        PR-AUC Accuracy @0.5
+         0.90 MobileNetV3-Small (B8, system model) 0.758 ± 0.031   0.759 ± 0.072 0.243 ± 0.036 0.825 ± 0.065 0.753 ± 0.077 0.757 ± 0.039
+         0.90                 EfficientNet-B0 (C2) 0.791 ± 0.034   0.549 ± 0.098 0.079 ± 0.053 0.833 ± 0.022 0.769 ± 0.043 0.792 ± 0.042
+         0.90      CNN-BiLSTM, Run 1 settings (A0) 0.549 ± 0.031   0.960 ± 0.066 0.672 ± 0.028 0.788 ± 0.048 0.662 ± 0.120 0.592 ± 0.025
+         0.95 MobileNetV3-Small (B8, system model) 0.580 ± 0.065   0.884 ± 0.091 0.584 ± 0.102 0.825 ± 0.065 0.753 ± 0.077 0.757 ± 0.039
+         0.95                 EfficientNet-B0 (C2) 0.643 ± 0.076   0.879 ± 0.085 0.484 ± 0.158 0.833 ± 0.022 0.769 ± 0.043 0.792 ± 0.042
+         0.95      CNN-BiLSTM, Run 1 settings (A0) 0.448 ± 0.030   0.992 ± 0.018 0.844 ± 0.050 0.788 ± 0.048 0.662 ± 0.120 0.592 ± 0.025
+
+MobileNetV3-Small (B8, system model), seed 42: share of PVSD files flagged, by original label
+                flagged_0.90  flagged_0.95
+original_label                            
+Healthy                0.165         0.525
+Noise                  0.279         0.547
+Unhealthy              0.736         0.802
+Files shorter than 5 s: 42, flagged 0.286; longer files flagged 0.408 (primary target)
+
+######## cell 27 | src: def flag_pools(kind, target):
+90% target. Validation clip-level FPR 0.071, recall 0.902. Chosen rule: at least 8 of the last 20 clips (10 minutes) flagged. Test clip-level FPR 0.069, recall 0.873.
+95% target. Validation clip-level FPR 0.139, recall 0.951. Chosen rule: at least 10 of the last 20 clips (10 minutes) flagged. Test clip-level FPR 0.132, recall 0.942.
+
+Zone alerts on locked-test predictions (simulation):
+Target recall           Rule  False alert-hours per week  Outbreak share  Detected within 24 h  Median minutes to alert
+          90%  8 of 20 clips                        0.26             0.1                 0.980                   323.75
+          90%  8 of 20 clips                        0.26             0.2                 1.000                    40.00
+          90%  8 of 20 clips                        0.26             0.3                 1.000                    15.75
+          90%  8 of 20 clips                        0.26             0.5                 1.000                     7.00
+          95% 10 of 20 clips                        0.60             0.1                 0.895                   400.75
+          95% 10 of 20 clips                        0.60             0.2                 1.000                    49.00
+          95% 10 of 20 clips                        0.60             0.3                 1.000                    17.75
+          95% 10 of 20 clips                        0.60             0.5                 1.000                     8.00
+
+######## cell 29 | src: class DeployModel(nn.Module):
+
+######## cell 31 | src: print(f"System model: {LABELS[SYSTEM_MODEL]}, {len(FINAL_SEEDS)} seeds, locked t
+System model: MobileNetV3-Small (B8, system model), 5 seeds, locked test set of 871 clips (id bf636617).
+
+90% recall target (primary), mean threshold 0.462:
+  accuracy 0.913 ± 0.007 (95% CI 0.897–0.929), distress recall 0.873 ± 0.016 (0.835–0.908), false-positive rate 0.069 ± 0.007 (0.052–0.087), ROC-AUC 0.962 ± 0.006 (0.948–0.973).
+  Run 1 CNN-BiLSTM on the same test set: accuracy 0.867 ± 0.014, recall 0.872 ± 0.008, false-positive rate 0.136 ± 0.020.
+  Zone alerts (simulation): rule {'window_clips': 20, 'share_flagged': 0.4}; false alert-hours per healthy zone per week 0.26; median minutes to alert at outbreak share 0.3: 15.8.
+
+95% recall target, mean threshold 0.198:
+  accuracy 0.891 ± 0.020 (95% CI 0.874–0.909), distress recall 0.942 ± 0.012 (0.917–0.963), false-positive rate 0.132 ± 0.023 (0.110–0.156), ROC-AUC 0.962 ± 0.006 (0.948–0.973).
+  Run 1 CNN-BiLSTM on the same test set: accuracy 0.816 ± 0.028, recall 0.924 ± 0.009, false-positive rate 0.234 ± 0.041.
+  Zone alerts (simulation): rule {'window_clips': 20, 'share_flagged': 0.5}; false alert-hours per healthy zone per week 0.60; median minutes to alert at outbreak share 0.3: 17.8.
+
+At threshold 0.5: accuracy 0.911 ± 0.007, distress F1 0.860 ± 0.013.
+Test data openings logged: 1.
