@@ -41,11 +41,12 @@ Local clone: `D:\SONARA-GITHUB` (an older clone existed at `D:\SONARA GITHUB`, n
 | `SONARA_Run2_SecondPass.ipynb` | Run 2 second pass (no normalization, loudness check, 3-class, gain augmentation) | Done |
 | `SONARA_Hyperparameter_Tuning.ipynb` | Optuna search over 22 training settings for B8; writes `chosen_system_model_config.json` | Done (16 Oct): Run 2 settings kept |
 | `SONARA_Final_Evaluation.ipynb` | Final evaluation: trains B8, C2, A0 on 5 seeds, opens locked test + PVSD once, zone alerts, Pi export | Done (17 Oct, T4 GPU, test opened once) |
-| `SONARA_C3_EfficientNet_Gain_Check.ipynb` | Validation-only check: EfficientNet-B0 with B8's ±12 dB gain on every clip (C3), seeds 7/21/42, compared seed by seed with the stored B5/B8/C2 second-pass runs; reading rule fixed in Part 0; never opens the test set; does not change the system model | Written 18 Oct, not run |
+| `SONARA_C3_EfficientNet_Gain_Check.ipynb` | Validation-only check: EfficientNet-B0 with B8's ±12 dB gain on every clip (C3), seeds 7/21/42, compared seed by seed with the stored B5/B8/C2 second-pass runs; reading rule fixed in Part 0; never opens the test set; does not change the system model | Done (18 Oct, T4): no clear difference on ROC-AUC |
 | `results/run1_baseline_2026-10-12/` | Run 1 record: `RESULTS_AND_DECISIONS.md`, executed notebook, text outputs, figures, `per_run_results.csv` | Committed |
 | `results/run2_first_pass/` | First-pass record: `FINDINGS.md`, executed notebook, text outputs | Committed |
 | `results/run2_second_pass/` | Second-pass record: `FINDINGS.md` (with the B8 decision), executed notebook, text outputs | Committed |
 | `results/hyperparameter_tuning/` | Tuning record: `FINDINGS.md`, executed notebook, text outputs, `search_trials.csv`, `optuna_study.db`, importance CSV and figures, `confirm/*.json`, `confirmation_results.csv`, `chosen_system_model_config.json` | Committed |
+| `results/c3_efficientnet_gain_check/` | C3 record: `FINDINGS.md`, executed notebook, text outputs, `c3_*.csv`, `runs/` (C3 JSON, history, validation predictions) | Committed |
 | `results/final_evaluation/` | Final evaluation record: `FINDINGS.md` (all paper tables), executed notebook, text outputs, two figures | Committed (PR #9) |
 | `PROJECT_CONTEXT.md` | This file (no private details: the repo is public) | Committed |
 
@@ -170,6 +171,8 @@ It audited the project and code, found V5 bugs (BiLSTM read the last time step, 
 | 14 Oct | Tune training settings by search instead of defaults; seeds are **not** tuned | User: convention is not a justification; tuning seeds would be cherry-picking |
 | 14 Oct | Widen the search to 22 settings and a one-day budget (200 trials or 20 h) | User: "as wide as possible", can wait up to a day |
 | 14 Oct | Only B8 is tuned; C2 and A0 keep Run 2 settings | Time; must be disclosed in the paper (favours B8 slightly) |
+| 18 Oct | Run a validation-only check C3 (EfficientNet-B0 + B8's ±12 dB augmentation); B8 stays the system model whatever it shows | B8 and C2 had different loudness augmentation, so the final comparison was between setups, not architectures; the test set had already been opened, so no re-selection |
+| 18 Oct | **C3 result: no clear difference on ROC-AUC; B8 kept** | C3 − B8 +0.0015 (2 of 3 seeds, within 0.004 noise); the rule would still pick B8. But C3 has fewer false alarms on 3 of 3 seeds (4.8% vs 7.2%) and is as loudness-robust as B8, so robustness is credited to the augmentation, and the paper states the false-alarm cost |
 | 16 Oct | **Tuning result: keep the Run 2 settings for B8** | Pre-declared rule: the 3 best search settings were all lower on all 3 confirmation splits (0.9657 to 0.9673 vs 0.9704) |
 
 ---
@@ -231,6 +234,22 @@ Per seed, C2 vs B8 ROC-AUC: 0.9691/0.9678, 0.9733/0.9723, 0.9674/0.9694 (tie). S
 - **Process problems (do not change the decision):** (1) some sessions had no GPU: trials 23, 27, 32, 33, 34 took 2 to 3.5 h each (about 12.5 of the 20 search hours) and three seed-7 confirmation runs took 1 to 3 h, so only about 70 settings were tried instead of 150 to 200; (2) trials 21 to 25 repeated trials 1 to 5 exactly because the TPE sampler is seeded with a fixed number and restarted after a disconnect (66 distinct settings). Fix for any future use: seed the sampler per session.
 - **Decision: Run 2 settings kept** (written to `chosen_system_model_config.json`). Record: `results/hyperparameter_tuning/FINDINGS.md` (includes suggested paper wording and the process problems).
 
+### C3 check (18 Oct 2026, T4 GPU): validation only
+
+EfficientNet-B0 with B8's ±12 dB gain on every clip, seeds 7/21/42, compared with the stored second-pass runs. Record: `results/c3_efficientnet_gain_check/FINDINGS.md`.
+
+| Setup | ROC-AUC | Acc @0.5 | FA @0.90 recall | Recall change ±10 / ±20 dB |
+| :- | :- | :- | :- | :- |
+| B8 MobileNetV3-Small, ±12 dB | 0.970 | 0.918 | 7.2% | 0.007 / 0.051 |
+| C2 EfficientNet-B0, ±6 dB on 20% | 0.970 | 0.931 | 6.1% | 0.038 / 0.246 |
+| C3 EfficientNet-B0, ±12 dB | 0.971 | 0.936 | 4.8% | 0.009 / 0.043 |
+
+- C3 − B8 ROC-AUC per seed +0.0028 / +0.0035 / −0.0018 → no clear difference; the rule would still select B8.
+- C3 had fewer false alarms on 3 of 3 seeds (−2.4 points) and higher accuracy on 3 of 3 (+1.7 points).
+- C3 is as loudness-robust as B8: robustness comes from the augmentation, not the architecture.
+- Colab CPU (1 thread): 8.8 vs 26.1 ms per clip (3.0×). The Pi ratio is still needed.
+- Checked on the received files: AUC recomputed from saved predictions matches; 0 validation clips or recordings in the locked test set.
+
 ### Final evaluation (17 Oct 2026, T4 GPU): **the paper's numbers**
 
 Locked test set 871 clips (597 Non-distress, 274 Distress; majority accuracy 0.685), opened once (fingerprint `2dbc43ca6501`). Mean ± SD over 5 seeds.
@@ -281,7 +300,7 @@ Locked test set 871 clips (597 Non-distress, 274 Distress; majority accuracy 0.6
 1. ~~Run the tuning notebook~~ Done 16 Oct; Run 2 settings kept; record in `results/hyperparameter_tuning/` (committed).
 2. ~~Run the final evaluation once~~ Done 17 Oct; record in `results/final_evaluation/FINDINGS.md` (merged, PR #9).
 3. Run `test/pi_latency_benchmark.py` on the Raspberry Pi 4 with the exported weights (row 16): `python3 pi_latency_benchmark.py --torchscript sonara_system_model.pt --weights_dir . --seed 42` (64-bit Raspberry Pi OS). Gives the Pi ratio EfficientNet-B0 / MobileNetV3-Small that the model-choice argument needs.
-3b. Run `SONARA_C3_EfficientNet_Gain_Check.ipynb` (T4, about 1 h). Reason: B8 and C2 were not trained with the same loudness augmentation (B8 ±12 dB on every clip, C2 ±6 dB on 20%), and without it C2 led on validation (0.970 vs B5 0.964). C3 is the fair architecture comparison. Outputs to `MyDrive/SONARA/c3_efficientnet_gain_check/`.
+3b. ~~Run `SONARA_C3_EfficientNet_Gain_Check.ipynb`~~ Done 18 Oct: no clear difference on ROC-AUC, B8 kept; record in `results/c3_efficientnet_gain_check/`. (Original note: Reason: B8 and C2 were not trained with the same loudness augmentation (B8 ±12 dB on every clip, C2 ±6 dB on 20%), and without it C2 led on validation (0.970 vs B5 0.964). C3 is the fair architecture comparison. Outputs to `MyDrive/SONARA/c3_efficientnet_gain_check/`.)
 4. Rewrite Chapter 3 from the final results (§5 list), build the new Table 3.1, write the results chapter.
 5. Decide the node-to-gateway link with the adviser. Recommendation given 17 Oct: Wi-Fi with the Pi as a local access point (works with no signal/internet; carries full audio so the evaluated model runs as tested); LoRa only for short alert messages over long distances, if needed; on-node TinyML would need a new model and evaluation. Questions: power in the houses, house length and gateway position, nodes per house, how alerts reach the farmer; add an RTC module to the Pi (no internet time).
 6. Playback calibration (coverage and cross-zone leakage) and field validation with the campus veterinarian (Claveria approval pending).
@@ -335,5 +354,6 @@ Locked test set 871 clips (597 Non-distress, 274 Distress; majority accuracy 0.6
 - 16 Oct 2026: tuning results added (Run 2 settings kept); next step is the final evaluation.
 - 16 Oct 2026: tuning output files from the user's zip added to `results/hyperparameter_tuning/`; recorded CPU sessions and repeated trials.
 - 16 Oct 2026: removed Drive file IDs, the team email and private details before pushing (the repo is public); they are kept in Claude's local memory. Merged as PR #7.
+- 18 Oct 2026: C3 results added (`results/c3_efficientnet_gain_check/`); decision log and results updated. Pi benchmark still pending.
 - 18 Oct 2026: added `SONARA_C3_EfficientNet_Gain_Check.ipynb` and an updated Pi benchmark (EfficientNet-B0, end-to-end TorchScript timing, RAM). Paper revision drafts for the model choice and PVSD are in the claude.ai Project (`SONARA_Paper_Revisions_ModelChoice_PVSD.md`).
 - 18 Oct 2026: final evaluation results added; IoT link discussion: Wi-Fi with the Pi as a local access point recommended (no internet needed); LoRa only for long-distance alert messages if needed.

@@ -1,0 +1,252 @@
+=====CELL 2
+Sun Oct 18 14:22:07 2026       
++-----------------------------------------------------------------------------------------+
+| NVIDIA-SMI 580.82.07              Driver Version: 580.82.07      CUDA Version: 13.0     |
++-----------------------------------------+------------------------+----------------------+
+| GPU  Name                 Persistence-M | Bus-Id          Disp.A | Volatile Uncorr. ECC |
+| Fan  Temp   Perf          Pwr:Usage/Cap |           Memory-Usage | GPU-Util  Compute M. |
+|                                         |                        |               MIG M. |
+|=========================================+========================+======================|
+|   0  Tesla T4                       Off |   00000000:00:04.0 Off |                    0 |
+| N/A   57C    P8             16W /   70W |       3MiB /  15360MiB |      0%      Default |
+|                                         |                        |                  N/A |
++-----------------------------------------+------------------------+----------------------+
+
++-----------------------------------------------------------------------------------------+
+| Processes:                                                                              |
+|  GPU   GI   CI              PID   Type   Process name                        GPU Memory |
+|        ID   ID                                                               Usage      |
+|=========================================================================================|
+|  No running processes found                                                             |
++-----------------------------------------------------------------------------------------+
+
+=====CELL 3
+Device: cuda | torch 2.11.0+cu130 | torchvision 0.26.0+cu130
+
+=====CELL 4
+Drive already mounted at /content/drive; to attempt to forcibly remount, call drive.mount("/content/drive", force_remount=True).
+Outputs: /content/drive/MyDrive/SONARA/c3_efficientnet_gain_check
+                                           model                      parent                                   change  norm pretrained three_class gain_prob gain_db
+C3_efficientnet_pre_recipe_gain  efficientnet_b0  C2_efficientnet_pre_recipe  loudness change of ±12 dB on every clip  none       True       False       1.0    12.0
+Loaded 9 reference runs. C3 differs from C2 only in gain_prob/gain_db: C2 0.2/6.0 -> C3 1.0/12.0
+
+=====CELL 5
+Cloning into '/content/SONARA-GITHUB'...
+remote: Enumerating objects: 6422, done.[K
+remote: Counting objects: 100% (6422/6422), done.[K
+remote: Compressing objects: 100% (6411/6411), done.[K
+remote: Total 6422 (delta 15), reused 6409 (delta 11), pack-reused 0 (from 0)[K
+Receiving objects: 100% (6422/6422), 2.54 GiB | 18.69 MiB/s, done.
+Resolving deltas: 100% (15/15), done.
+Updating files: 100% (6402/6402), done.
+Repo folder: /content/SONARA-GITHUB | exists: True
+
+=====CELL 7
+original_label  source    label
+Healthy         Normal    0        2000
+None            Noise     0        2000
+Sick            Distress  1        2000
+  loaded 1000/6000 clips (10s)
+  loaded 2000/6000 clips (21s)
+  loaded 3000/6000 clips (31s)
+  loaded 4000/6000 clips (42s)
+  loaded 5000/6000 clips (52s)
+  loaded 6000/6000 clips (62s)
+Loaded 6000 clips in 62s
+
+=====CELL 9
+Locked test set: 871 clips, id bf636617, saved to /content/drive/MyDrive/SONARA/c3_efficientnet_gain_check/locked_test_set.csv
+Development set: 5129 clips
+seed 7: train 4218 [2808, 1410] | val 911 [595, 316]
+seed 21: train 4235 [2812, 1423] | val 894 [591, 303]
+seed 42: train 4219 [2818, 1401] | val 910 [585, 325]
+
+=====CELL 13
+CPU threads: 1 (Colab proxy, not the Pi)
+            model  parameters  size_MB  cpu_ms_per_clip
+mobilenetv3_small     1519906     6.08              8.8
+  efficientnet_b0     4010110    16.04             26.1
+
+=====CELL 17
+Downloading: "https://download.pytorch.org/models/efficientnet_b0_rwightman-7f5810bc.pth" to /root/.cache/torch/hub/checkpoints/efficientnet_b0_rwightman-7f5810bc.pth
+
+=====CELL 17
+100%|██████████| 20.5M/20.5M [00:00<00:00, 188MB/s]
+
+=====CELL 17
+  [C3_efficientnet_pre_recipe_gain seed 7] epoch 01 train 0.5327 val 0.3839 auc 0.9236 *
+  [C3_efficientnet_pre_recipe_gain seed 7] epoch 02 train 0.4719 val 0.3497 auc 0.9379 *
+  [C3_efficientnet_pre_recipe_gain seed 7] epoch 03 train 0.4442 val 0.3964 auc 0.9274
+  [C3_efficientnet_pre_recipe_gain seed 7] epoch 04 train 0.4175 val 0.3224 auc 0.9556 *
+  [C3_efficientnet_pre_recipe_gain seed 7] epoch 05 train 0.3918 val 0.3008 auc 0.9571 *
+  [C3_efficientnet_pre_recipe_gain seed 7] epoch 06 train 0.3815 val 0.3040 auc 0.9477
+  [C3_efficientnet_pre_recipe_gain seed 7] epoch 07 train 0.3446 val 0.2896 auc 0.9641 *
+  [C3_efficientnet_pre_recipe_gain seed 7] epoch 08 train 0.3365 val 0.2635 auc 0.9664 *
+  [C3_efficientnet_pre_recipe_gain seed 7] epoch 09 train 0.3294 val 0.2882 auc 0.9556
+  [C3_efficientnet_pre_recipe_gain seed 7] epoch 10 train 0.3294 val 0.2624 auc 0.9704 *
+  [C3_efficientnet_pre_recipe_gain seed 7] epoch 11 train 0.3020 val 0.2862 auc 0.9599
+  [C3_efficientnet_pre_recipe_gain seed 7] epoch 12 train 0.3051 val 0.2679 auc 0.9598
+  [C3_efficientnet_pre_recipe_gain seed 7] epoch 13 train 0.2835 val 0.3016 auc 0.9458
+  [C3_efficientnet_pre_recipe_gain seed 7] epoch 14 train 0.3040 val 0.2853 auc 0.9654
+  [C3_efficientnet_pre_recipe_gain seed 7] epoch 15 train 0.2629 val 0.2774 auc 0.9648
+  [C3_efficientnet_pre_recipe_gain seed 7] epoch 16 train 0.2796 val 0.2573 auc 0.9666 *
+  [C3_efficientnet_pre_recipe_gain seed 7] epoch 17 train 0.2610 val 0.2774 auc 0.9618
+  [C3_efficientnet_pre_recipe_gain seed 7] epoch 18 train 0.2572 val 0.2950 auc 0.9674
+  [C3_efficientnet_pre_recipe_gain seed 7] epoch 19 train 0.2611 val 0.2532 auc 0.9697 *
+  [C3_efficientnet_pre_recipe_gain seed 7] epoch 20 train 0.2373 val 0.2796 auc 0.9622
+  [C3_efficientnet_pre_recipe_gain seed 7] epoch 21 train 0.2618 val 0.2704 auc 0.9622
+  [C3_efficientnet_pre_recipe_gain seed 7] epoch 22 train 0.2271 val 0.2614 auc 0.9626
+  [C3_efficientnet_pre_recipe_gain seed 7] epoch 23 train 0.2274 val 0.2504 auc 0.9663 *
+  [C3_efficientnet_pre_recipe_gain seed 7] epoch 24 train 0.2203 val 0.2543 auc 0.9679
+  [C3_efficientnet_pre_recipe_gain seed 7] epoch 25 train 0.2109 val 0.2514 auc 0.9640
+  [C3_efficientnet_pre_recipe_gain seed 7] epoch 26 train 0.2196 val 0.2531 auc 0.9668
+  [C3_efficientnet_pre_recipe_gain seed 7] epoch 27 train 0.2134 val 0.2495 auc 0.9721 *
+  [C3_efficientnet_pre_recipe_gain seed 7] epoch 28 train 0.2352 val 0.2410 auc 0.9706 *
+  [C3_efficientnet_pre_recipe_gain seed 7] epoch 29 train 0.1954 val 0.2429 auc 0.9688
+  [C3_efficientnet_pre_recipe_gain seed 7] epoch 30 train 0.2189 val 0.2471 auc 0.9691
+  [C3_efficientnet_pre_recipe_gain seed 7] epoch 31 train 0.2061 val 0.2582 auc 0.9629
+  [C3_efficientnet_pre_recipe_gain seed 7] epoch 32 train 0.2192 val 0.2579 auc 0.9675
+  [C3_efficientnet_pre_recipe_gain seed 7] epoch 33 train 0.2004 val 0.2597 auc 0.9691
+  [C3_efficientnet_pre_recipe_gain seed 7] epoch 34 train 0.2076 val 0.2569 auc 0.9682
+  [C3_efficientnet_pre_recipe_gain seed 7] epoch 35 train 0.2118 val 0.2516 auc 0.9690
+  [C3_efficientnet_pre_recipe_gain seed 7] epoch 36 train 0.1877 val 0.2563 auc 0.9676
+  [C3_efficientnet_pre_recipe_gain seed 7] epoch 37 train 0.2143 val 0.2508 auc 0.9667
+  [C3_efficientnet_pre_recipe_gain seed 7] epoch 38 train 0.2080 val 0.2518 auc 0.9648
+DONE C3_efficientnet_pre_recipe_gain_seed7: val AUC 0.9706 | acc@0.5 0.9308 | false alarms at 0.90 recall 0.0639 | recall at -10/0/+10 dB 0.90/0.90/0.90 | 14.2 min
+
+  [C3_efficientnet_pre_recipe_gain seed 21] epoch 01 train 0.5398 val 0.4142 auc 0.9160 *
+  [C3_efficientnet_pre_recipe_gain seed 21] epoch 02 train 0.4713 val 0.3822 auc 0.9307 *
+  [C3_efficientnet_pre_recipe_gain seed 21] epoch 03 train 0.4458 val 0.3659 auc 0.9463 *
+  [C3_efficientnet_pre_recipe_gain seed 21] epoch 04 train 0.4057 val 0.3462 auc 0.9448 *
+  [C3_efficientnet_pre_recipe_gain seed 21] epoch 05 train 0.4003 val 0.2999 auc 0.9600 *
+  [C3_efficientnet_pre_recipe_gain seed 21] epoch 06 train 0.3791 val 0.3032 auc 0.9622
+  [C3_efficientnet_pre_recipe_gain seed 21] epoch 07 train 0.3716 val 0.3046 auc 0.9539
+  [C3_efficientnet_pre_recipe_gain seed 21] epoch 08 train 0.3553 val 0.2646 auc 0.9680 *
+  [C3_efficientnet_pre_recipe_gain seed 21] epoch 09 train 0.3406 val 0.3192 auc 0.9571
+  [C3_efficientnet_pre_recipe_gain seed 21] epoch 10 train 0.3355 val 0.2993 auc 0.9688
+  [C3_efficientnet_pre_recipe_gain seed 21] epoch 11 train 0.3246 val 0.2764 auc 0.9603
+  [C3_efficientnet_pre_recipe_gain seed 21] epoch 12 train 0.3073 val 0.2710 auc 0.9712
+  [C3_efficientnet_pre_recipe_gain seed 21] epoch 13 train 0.2954 val 0.2582 auc 0.9677 *
+  [C3_efficientnet_pre_recipe_gain seed 21] epoch 14 train 0.2922 val 0.2469 auc 0.9659 *
+  [C3_efficientnet_pre_recipe_gain seed 21] epoch 15 train 0.2867 val 0.2722 auc 0.9638
+  [C3_efficientnet_pre_recipe_gain seed 21] epoch 16 train 0.2890 val 0.2404 auc 0.9777 *
+  [C3_efficientnet_pre_recipe_gain seed 21] epoch 17 train 0.2777 val 0.2941 auc 0.9550
+  [C3_efficientnet_pre_recipe_gain seed 21] epoch 18 train 0.2561 val 0.2421 auc 0.9681
+  [C3_efficientnet_pre_recipe_gain seed 21] epoch 19 train 0.2334 val 0.2538 auc 0.9642
+  [C3_efficientnet_pre_recipe_gain seed 21] epoch 20 train 0.2554 val 0.2537 auc 0.9693
+  [C3_efficientnet_pre_recipe_gain seed 21] epoch 21 train 0.2260 val 0.2868 auc 0.9597
+  [C3_efficientnet_pre_recipe_gain seed 21] epoch 22 train 0.2297 val 0.2452 auc 0.9674
+  [C3_efficientnet_pre_recipe_gain seed 21] epoch 23 train 0.2402 val 0.2408 auc 0.9688
+  [C3_efficientnet_pre_recipe_gain seed 21] epoch 24 train 0.2298 val 0.2475 auc 0.9688
+  [C3_efficientnet_pre_recipe_gain seed 21] epoch 25 train 0.2243 val 0.2390 auc 0.9686 *
+  [C3_efficientnet_pre_recipe_gain seed 21] epoch 26 train 0.2268 val 0.2702 auc 0.9711
+  [C3_efficientnet_pre_recipe_gain seed 21] epoch 27 train 0.2402 val 0.2496 auc 0.9695
+  [C3_efficientnet_pre_recipe_gain seed 21] epoch 28 train 0.2107 val 0.2615 auc 0.9696
+  [C3_efficientnet_pre_recipe_gain seed 21] epoch 29 train 0.2138 val 0.2307 auc 0.9758 *
+  [C3_efficientnet_pre_recipe_gain seed 21] epoch 30 train 0.2178 val 0.2433 auc 0.9743
+  [C3_efficientnet_pre_recipe_gain seed 21] epoch 31 train 0.2214 val 0.2314 auc 0.9758
+  [C3_efficientnet_pre_recipe_gain seed 21] epoch 32 train 0.2125 val 0.2439 auc 0.9728
+  [C3_efficientnet_pre_recipe_gain seed 21] epoch 33 train 0.2141 val 0.2383 auc 0.9741
+  [C3_efficientnet_pre_recipe_gain seed 21] epoch 34 train 0.2158 val 0.2386 auc 0.9741
+  [C3_efficientnet_pre_recipe_gain seed 21] epoch 35 train 0.2011 val 0.2314 auc 0.9743
+  [C3_efficientnet_pre_recipe_gain seed 21] epoch 36 train 0.1997 val 0.2351 auc 0.9744
+  [C3_efficientnet_pre_recipe_gain seed 21] epoch 37 train 0.2114 val 0.2281 auc 0.9767 *
+  [C3_efficientnet_pre_recipe_gain seed 21] epoch 38 train 0.1967 val 0.2261 auc 0.9757 *
+  [C3_efficientnet_pre_recipe_gain seed 21] epoch 39 train 0.2260 val 0.2259 auc 0.9758 *
+  [C3_efficientnet_pre_recipe_gain seed 21] epoch 40 train 0.2002 val 0.2327 auc 0.9749
+DONE C3_efficientnet_pre_recipe_gain_seed21: val AUC 0.9758 | acc@0.5 0.9407 | false alarms at 0.90 recall 0.0338 | recall at -10/0/+10 dB 0.89/0.90/0.89 | 15.0 min
+
+  [C3_efficientnet_pre_recipe_gain seed 42] epoch 01 train 0.5401 val 0.4173 auc 0.9186 *
+  [C3_efficientnet_pre_recipe_gain seed 42] epoch 02 train 0.4781 val 0.4240 auc 0.9314
+  [C3_efficientnet_pre_recipe_gain seed 42] epoch 03 train 0.4442 val 0.3425 auc 0.9382 *
+  [C3_efficientnet_pre_recipe_gain seed 42] epoch 04 train 0.4055 val 0.3241 auc 0.9472 *
+  [C3_efficientnet_pre_recipe_gain seed 42] epoch 05 train 0.3869 val 0.3051 auc 0.9562 *
+  [C3_efficientnet_pre_recipe_gain seed 42] epoch 06 train 0.3866 val 0.2843 auc 0.9633 *
+  [C3_efficientnet_pre_recipe_gain seed 42] epoch 07 train 0.3675 val 0.2865 auc 0.9579
+  [C3_efficientnet_pre_recipe_gain seed 42] epoch 08 train 0.3544 val 0.2663 auc 0.9656 *
+  [C3_efficientnet_pre_recipe_gain seed 42] epoch 09 train 0.3523 val 0.2766 auc 0.9714
+  [C3_efficientnet_pre_recipe_gain seed 42] epoch 10 train 0.3214 val 0.2580 auc 0.9716 *
+  [C3_efficientnet_pre_recipe_gain seed 42] epoch 11 train 0.3236 val 0.2795 auc 0.9623
+  [C3_efficientnet_pre_recipe_gain seed 42] epoch 12 train 0.3007 val 0.2608 auc 0.9670
+  [C3_efficientnet_pre_recipe_gain seed 42] epoch 13 train 0.2920 val 0.2697 auc 0.9669
+  [C3_efficientnet_pre_recipe_gain seed 42] epoch 14 train 0.2789 val 0.2688 auc 0.9592
+  [C3_efficientnet_pre_recipe_gain seed 42] epoch 15 train 0.2673 val 0.2743 auc 0.9681
+  [C3_efficientnet_pre_recipe_gain seed 42] epoch 16 train 0.2656 val 0.2610 auc 0.9704
+  [C3_efficientnet_pre_recipe_gain seed 42] epoch 17 train 0.2707 val 0.2716 auc 0.9695
+  [C3_efficientnet_pre_recipe_gain seed 42] epoch 18 train 0.2585 val 0.2740 auc 0.9622
+  [C3_efficientnet_pre_recipe_gain seed 42] epoch 19 train 0.2584 val 0.2573 auc 0.9687 *
+  [C3_efficientnet_pre_recipe_gain seed 42] epoch 20 train 0.2395 val 0.2710 auc 0.9589
+  [C3_efficientnet_pre_recipe_gain seed 42] epoch 21 train 0.2320 val 0.2757 auc 0.9662
+  [C3_efficientnet_pre_recipe_gain seed 42] epoch 22 train 0.2307 val 0.2604 auc 0.9630
+  [C3_efficientnet_pre_recipe_gain seed 42] epoch 23 train 0.2413 val 0.2543 auc 0.9697 *
+  [C3_efficientnet_pre_recipe_gain seed 42] epoch 24 train 0.2226 val 0.2649 auc 0.9683
+  [C3_efficientnet_pre_recipe_gain seed 42] epoch 25 train 0.2252 val 0.2551 auc 0.9716
+  [C3_efficientnet_pre_recipe_gain seed 42] epoch 26 train 0.2107 val 0.2578 auc 0.9701
+  [C3_efficientnet_pre_recipe_gain seed 42] epoch 27 train 0.2238 val 0.2647 auc 0.9663
+  [C3_efficientnet_pre_recipe_gain seed 42] epoch 28 train 0.2125 val 0.2551 auc 0.9648
+  [C3_efficientnet_pre_recipe_gain seed 42] epoch 29 train 0.2129 val 0.2572 auc 0.9608
+  [C3_efficientnet_pre_recipe_gain seed 42] epoch 30 train 0.2129 val 0.2485 auc 0.9666 *
+  [C3_efficientnet_pre_recipe_gain seed 42] epoch 31 train 0.2238 val 0.2539 auc 0.9676
+  [C3_efficientnet_pre_recipe_gain seed 42] epoch 32 train 0.2200 val 0.2561 auc 0.9656
+  [C3_efficientnet_pre_recipe_gain seed 42] epoch 33 train 0.2186 val 0.2578 auc 0.9642
+  [C3_efficientnet_pre_recipe_gain seed 42] epoch 34 train 0.2202 val 0.2528 auc 0.9668
+  [C3_efficientnet_pre_recipe_gain seed 42] epoch 35 train 0.2090 val 0.2494 auc 0.9678
+  [C3_efficientnet_pre_recipe_gain seed 42] epoch 36 train 0.2126 val 0.2475 auc 0.9676 *
+  [C3_efficientnet_pre_recipe_gain seed 42] epoch 37 train 0.1924 val 0.2511 auc 0.9701
+  [C3_efficientnet_pre_recipe_gain seed 42] epoch 38 train 0.2099 val 0.2490 auc 0.9693
+  [C3_efficientnet_pre_recipe_gain seed 42] epoch 39 train 0.2012 val 0.2584 auc 0.9639
+  [C3_efficientnet_pre_recipe_gain seed 42] epoch 40 train 0.2043 val 0.2535 auc 0.9664
+DONE C3_efficientnet_pre_recipe_gain_seed42: val AUC 0.9676 | acc@0.5 0.9352 | false alarms at 0.90 recall 0.0462 | recall at -10/0/+10 dB 0.89/0.90/0.89 | 15.0 min
+
+
+=====CELL 19
+VALIDATION results (not test results)
+                          Setup  Seeds           gain         ROC-AUC         ROC-AUC per seed Accuracy @0.5 Distress F1 @0.5 False alarms @0.90 recall    …on Normal     …on Noise  Best epoch
+        B5_mobilenet_pre_recipe      3   ±6 dB on 20% 0.9642 ± 0.0079 0.9556 / 0.9711 / 0.9659 0.917 ± 0.008    0.881 ± 0.012             0.073 ± 0.017 0.111 ± 0.031 0.031 ± 0.006 21.3 ± 12.1
+   B8_mobilenet_pre_recipe_gain      3 ±12 dB on 100% 0.9698 ± 0.0023 0.9678 / 0.9723 / 0.9694 0.918 ± 0.004    0.883 ± 0.006             0.072 ± 0.011 0.106 ± 0.007 0.034 ± 0.018  25.7 ± 5.9
+     C2_efficientnet_pre_recipe      3   ±6 dB on 20% 0.9699 ± 0.0031 0.9691 / 0.9733 / 0.9674 0.931 ± 0.006    0.901 ± 0.007             0.061 ± 0.023 0.092 ± 0.034 0.027 ± 0.015  22.0 ± 8.0
+C3_efficientnet_pre_recipe_gain      3 ±12 dB on 100% 0.9713 ± 0.0042 0.9706 / 0.9758 / 0.9676 0.936 ± 0.005    0.907 ± 0.009             0.048 ± 0.015 0.070 ± 0.019 0.023 ± 0.015  34.3 ± 5.7
+
+=====CELL 21
+                                         Comparison                               A                            B  Seeds  ROC-AUC: A − B  ROC-AUC: seeds A better  Accuracy @0.5: A − B  Accuracy @0.5: seeds A better  False alarms @0.90: A − B  False alarms @0.90: seeds A better
+                     gain effect on EfficientNet-B0 C3_efficientnet_pre_recipe_gain   C2_efficientnet_pre_recipe      3          0.0014                        3                0.0048                              3                    -0.0130                                   3
+                   gain effect on MobileNetV3-Small    B8_mobilenet_pre_recipe_gain      B5_mobilenet_pre_recipe      3          0.0056                        3                0.0014                              2                    -0.0005                                   1
+EfficientNet-B0 vs MobileNetV3-Small, same training C3_efficientnet_pre_recipe_gain B8_mobilenet_pre_recipe_gain      3          0.0015                        2                0.0173                              3                    -0.0243                                   3
+
+=====CELL 23
+Recall at each level shift (threshold fixed at its 0 dB value):
+                          Setup  Recall -20 dB  Recall -10 dB  Recall -6 dB  Recall +0 dB  Recall +6 dB  Recall +10 dB  Recall +20 dB
+        B5_mobilenet_pre_recipe          0.720          0.867         0.888         0.901         0.892          0.882          0.841
+   B8_mobilenet_pre_recipe_gain          0.850          0.894         0.897         0.901         0.901          0.899          0.888
+     C2_efficientnet_pre_recipe          0.655          0.863         0.883         0.901         0.901          0.893          0.793
+C3_efficientnet_pre_recipe_gain          0.858          0.894         0.900         0.901         0.898          0.892          0.860 
+
+False alarms at each level shift (threshold fixed at its 0 dB value):
+                          Setup  False alarms -20 dB  False alarms -10 dB  False alarms -6 dB  False alarms +0 dB  False alarms +6 dB  False alarms +10 dB  False alarms +20 dB
+        B5_mobilenet_pre_recipe                0.078                0.081               0.076               0.073               0.083                0.094                0.139
+   B8_mobilenet_pre_recipe_gain                0.057                0.066               0.069               0.072               0.071                0.070                0.077
+     C2_efficientnet_pre_recipe                0.033                0.048               0.053               0.061               0.064                0.073                0.082
+C3_efficientnet_pre_recipe_gain                0.041                0.048               0.051               0.048               0.050                0.051                0.047 
+
+ROC-AUC at each level shift (threshold fixed at its 0 dB value):
+                          Setup  ROC-AUC -20 dB  ROC-AUC -10 dB  ROC-AUC -6 dB  ROC-AUC +0 dB  ROC-AUC +6 dB  ROC-AUC +10 dB  ROC-AUC +20 dB
+        B5_mobilenet_pre_recipe           0.923           0.954          0.960          0.964          0.963           0.958           0.930
+   B8_mobilenet_pre_recipe_gain           0.959           0.966          0.968          0.970          0.971           0.970           0.964
+     C2_efficientnet_pre_recipe           0.930           0.963          0.968          0.970          0.969           0.966           0.942
+C3_efficientnet_pre_recipe_gain           0.964           0.971          0.971          0.971          0.970           0.969           0.958 
+
+                          Setup  Largest recall change at ±10 dB  Largest false-alarm change at ±10 dB  Largest recall change at ±20 dB  Largest false-alarm change at ±20 dB
+        B5_mobilenet_pre_recipe                            0.034                                 0.021                            0.181                                 0.066
+   B8_mobilenet_pre_recipe_gain                            0.007                                 0.006                            0.051                                 0.015
+     C2_efficientnet_pre_recipe                            0.038                                 0.013                            0.246                                 0.028
+C3_efficientnet_pre_recipe_gain                            0.009                                 0.003                            0.043                                 0.007
+
+=====CELL 25
+C3 − B8 validation ROC-AUC per seed: [0.0028, 0.0035, -0.0018] (mean +0.0015; noise level 0.004)
+NO CLEAR DIFFERENCE between C3 and B8. Under identical training the two architectures perform alike; the choice of B8 rests on size and speed.
+Do not evaluate C3 on the test set and do not change the system model.
+C2_efficientnet_pre_recipe: recall at -20 / 0 / +20 dB = 0.655 / 0.901 / 0.793
+C3_efficientnet_pre_recipe_gain: recall at -20 / 0 / +20 dB = 0.858 / 0.901 / 0.860
+B8_mobilenet_pre_recipe_gain: recall at -20 / 0 / +20 dB = 0.850 / 0.901 / 0.888
+
+These are validation results. The locked test set (id bf636617) and PVSD were not used.

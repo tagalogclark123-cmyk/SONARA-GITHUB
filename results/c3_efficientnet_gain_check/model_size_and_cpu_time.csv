@@ -1,0 +1,3 @@
+model,parameters,size_MB,cpu_ms_per_clip
+mobilenetv3_small,1519906,6.08,8.8
+efficientnet_b0,4010110,16.04,26.1

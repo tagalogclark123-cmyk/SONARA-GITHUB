@@ -1,0 +1,4 @@
+Comparison,A,B,Seeds,ROC-AUC: A − B,ROC-AUC: seeds A better,Accuracy @0.5: A − B,Accuracy @0.5: seeds A better,False alarms @0.90: A − B,False alarms @0.90: seeds A better
+gain effect on EfficientNet-B0,C3_efficientnet_pre_recipe_gain,C2_efficientnet_pre_recipe,3,0.0014,3,0.0048,3,-0.013,3
+gain effect on MobileNetV3-Small,B8_mobilenet_pre_recipe_gain,B5_mobilenet_pre_recipe,3,0.0056,3,0.0014,2,-0.0005,1
+"EfficientNet-B0 vs MobileNetV3-Small, same training",C3_efficientnet_pre_recipe_gain,B8_mobilenet_pre_recipe_gain,3,0.0015,2,0.0173,3,-0.0243,3
