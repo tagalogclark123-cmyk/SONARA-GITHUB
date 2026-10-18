@@ -34,13 +34,14 @@ Local clone: `D:\SONARA-GITHUB` (an older clone existed at `D:\SONARA GITHUB`, n
 | `SONARA_CNN_OCT9.ipynb`, `SONARA_NEW_V5 (2).ipynb` | The team's original V5 training notebook (source of the old 0.890 result) | Superseded, kept for history |
 | `SONARA_REVAMP_DATASET (2).ipynb` | Original dataset/feature notebook | Superseded |
 | `test/SONARA_DATASET_V2.ipynb`, `test/SONARA_TRAIN_V6.ipynb` | Notebooks written in a separate claude.ai conversation (Drive-based, 4-s crops) | Superseded by the notebooks below; not run |
-| `test/sonara_models.py` | Model definitions shared with the Pi benchmark (CNN_BiLSTM, CNNFrontEndOnly, DSCNN, mobilenet_v3_small) | In use |
-| `test/pi_latency_benchmark.py` | Times models on the Raspberry Pi 4; changed to time a 5-s clip (500 frames) | In use |
+| `test/sonara_models.py` | Model definitions shared with the Pi benchmark (CNN_BiLSTM, CNNFrontEndOnly, DSCNN, mobilenet_v3_small, efficientnet_b0) | In use |
+| `test/pi_latency_benchmark.py` | Times models on the Raspberry Pi 4 (5-s clip, 500 frames). 18 Oct: defaults to B8 / EfficientNet-B0 / CNN–BiLSTM, each in its own process; `--torchscript` times the exported gateway model end to end; reports extra RAM, CPU temperature and throttling | In use, not yet run on the Pi |
 | `SONARA_Chapter3_Pipeline.ipynb` | Run 1 pipeline (4 models × 5 seeds, SmartEars train/val/test, PVSD external) | Done (Run 1) |
 | `SONARA_Run2_FirstPass.ipynb` | Run 2 first pass (normalization, ImageNet weights, recipe), validation only | Done |
 | `SONARA_Run2_SecondPass.ipynb` | Run 2 second pass (no normalization, loudness check, 3-class, gain augmentation) | Done |
 | `SONARA_Hyperparameter_Tuning.ipynb` | Optuna search over 22 training settings for B8; writes `chosen_system_model_config.json` | Done (16 Oct): Run 2 settings kept |
 | `SONARA_Final_Evaluation.ipynb` | Final evaluation: trains B8, C2, A0 on 5 seeds, opens locked test + PVSD once, zone alerts, Pi export | Done (17 Oct, T4 GPU, test opened once) |
+| `SONARA_C3_EfficientNet_Gain_Check.ipynb` | Validation-only check: EfficientNet-B0 with B8's ±12 dB gain on every clip (C3), seeds 7/21/42, compared seed by seed with the stored B5/B8/C2 second-pass runs; reading rule fixed in Part 0; never opens the test set; does not change the system model | Written 18 Oct, not run |
 | `results/run1_baseline_2026-10-12/` | Run 1 record: `RESULTS_AND_DECISIONS.md`, executed notebook, text outputs, figures, `per_run_results.csv` | Committed |
 | `results/run2_first_pass/` | First-pass record: `FINDINGS.md`, executed notebook, text outputs | Committed |
 | `results/run2_second_pass/` | Second-pass record: `FINDINGS.md` (with the B8 decision), executed notebook, text outputs | Committed |
@@ -279,7 +280,8 @@ Locked test set 871 clips (597 Non-distress, 274 Distress; majority accuracy 0.6
 
 1. ~~Run the tuning notebook~~ Done 16 Oct; Run 2 settings kept; record in `results/hyperparameter_tuning/` (committed).
 2. ~~Run the final evaluation once~~ Done 17 Oct; record in `results/final_evaluation/FINDINGS.md` (merged, PR #9).
-3. Run `test/pi_latency_benchmark.py` on the Raspberry Pi 4 with the exported weights (row 16).
+3. Run `test/pi_latency_benchmark.py` on the Raspberry Pi 4 with the exported weights (row 16): `python3 pi_latency_benchmark.py --torchscript sonara_system_model.pt --weights_dir . --seed 42` (64-bit Raspberry Pi OS). Gives the Pi ratio EfficientNet-B0 / MobileNetV3-Small that the model-choice argument needs.
+3b. Run `SONARA_C3_EfficientNet_Gain_Check.ipynb` (T4, about 1 h). Reason: B8 and C2 were not trained with the same loudness augmentation (B8 ±12 dB on every clip, C2 ±6 dB on 20%), and without it C2 led on validation (0.970 vs B5 0.964). C3 is the fair architecture comparison. Outputs to `MyDrive/SONARA/c3_efficientnet_gain_check/`.
 4. Rewrite Chapter 3 from the final results (§5 list), build the new Table 3.1, write the results chapter.
 5. Decide the node-to-gateway link with the adviser. Recommendation given 17 Oct: Wi-Fi with the Pi as a local access point (works with no signal/internet; carries full audio so the evaluated model runs as tested); LoRa only for short alert messages over long distances, if needed; on-node TinyML would need a new model and evaluation. Questions: power in the houses, house length and gateway position, nodes per house, how alerts reach the farmer; add an RTC module to the Pi (no internet time).
 6. Playback calibration (coverage and cross-zone leakage) and field validation with the campus veterinarian (Claveria approval pending).
@@ -333,4 +335,5 @@ Locked test set 871 clips (597 Non-distress, 274 Distress; majority accuracy 0.6
 - 16 Oct 2026: tuning results added (Run 2 settings kept); next step is the final evaluation.
 - 16 Oct 2026: tuning output files from the user's zip added to `results/hyperparameter_tuning/`; recorded CPU sessions and repeated trials.
 - 16 Oct 2026: removed Drive file IDs, the team email and private details before pushing (the repo is public); they are kept in Claude's local memory. Merged as PR #7.
+- 18 Oct 2026: added `SONARA_C3_EfficientNet_Gain_Check.ipynb` and an updated Pi benchmark (EfficientNet-B0, end-to-end TorchScript timing, RAM). Paper revision drafts for the model choice and PVSD are in the claude.ai Project (`SONARA_Paper_Revisions_ModelChoice_PVSD.md`).
 - 18 Oct 2026: final evaluation results added; IoT link discussion: Wi-Fi with the Pi as a local access point recommended (no internet needed); LoRa only for long-distance alert messages if needed.

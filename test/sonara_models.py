@@ -123,12 +123,20 @@ def mobilenet_v3_small(num_classes=2):
     return _mnv3(weights=None, num_classes=num_classes)
 
 
+def efficientnet_b0(num_classes=2):
+    """EfficientNet-B0 from torchvision with a 2-class head (runner-up C2 / check C3).
+    Same layer shapes as the trained models; weights are not needed for timing."""
+    from torchvision.models import efficientnet_b0 as _eff
+    return _eff(weights=None, num_classes=num_classes)
+
+
 MODEL_BUILDERS = {
     "cnn_bilstm": lambda: CNN_BiLSTM(pooling="final_states"),
     "cnn_bilstm_laststep": lambda: CNN_BiLSTM(pooling="last_step"),   # legacy, for comparison only
     "cnn_frontend_only": lambda: CNNFrontEndOnly(),
     "dscnn": lambda: DSCNN(),
     "mobilenetv3_small": lambda: mobilenet_v3_small(),
+    "efficientnet_b0": lambda: efficientnet_b0(),
 }
 
 MODEL_LABELS = {
@@ -137,6 +145,7 @@ MODEL_LABELS = {
     "cnn_frontend_only": "CNN front end only (no LSTM)",
     "dscnn": "DS-CNN (binary)",
     "mobilenetv3_small": "MobileNetV3-Small",
+    "efficientnet_b0": "EfficientNet-B0",
 }
 
 
