@@ -45,10 +45,10 @@ Local clone: `D:\SONARA-GITHUB` (an older clone existed at `D:\SONARA GITHUB`, n
 | `results/run2_first_pass/` | First-pass record: `FINDINGS.md`, executed notebook, text outputs | Committed |
 | `results/run2_second_pass/` | Second-pass record: `FINDINGS.md` (with the B8 decision), executed notebook, text outputs | Committed |
 | `results/hyperparameter_tuning/` | Tuning record: `FINDINGS.md`, executed notebook, text outputs, `search_trials.csv`, `optuna_study.db`, importance CSV and figures, `confirm/*.json`, `confirmation_results.csv`, `chosen_system_model_config.json` | Committed |
-| `results/final_evaluation/` | Final evaluation record: `FINDINGS.md` (all paper tables), executed notebook, text outputs, two figures | Local; not yet committed |
+| `results/final_evaluation/` | Final evaluation record: `FINDINGS.md` (all paper tables), executed notebook, text outputs, two figures | Committed (PR #9) |
 | `PROJECT_CONTEXT.md` | This file (no private details: the repo is public) | Committed |
 
-Merged pull requests: #1 Chapter 3 pipeline aligned with V2/V6 and 5-s clips · #2 Run 1 record + first-pass notebook · #3 first-pass record + second-pass notebook · #4 tuning notebook · #5 second-pass record + final evaluation · #6 widened hyperparameter search · #7 tuning results + this context file.
+Merged pull requests: #1 Chapter 3 pipeline aligned with V2/V6 and 5-s clips · #2 Run 1 record + first-pass notebook · #3 first-pass record + second-pass notebook · #4 tuning notebook · #5 second-pass record + final evaluation · #6 widened hyperparameter search · #7 tuning results + this context file · #8 context note · #9 final evaluation results.
 
 ### Google Drive (team account)
 
@@ -278,7 +278,7 @@ Locked test set 871 clips (597 Non-distress, 274 Distress; majority accuracy 0.6
 ## 10. Open items and next steps
 
 1. ~~Run the tuning notebook~~ Done 16 Oct; Run 2 settings kept; record in `results/hyperparameter_tuning/` (committed).
-2. ~~Run the final evaluation once~~ Done 17 Oct; record in `results/final_evaluation/FINDINGS.md` (not yet committed).
+2. ~~Run the final evaluation once~~ Done 17 Oct; record in `results/final_evaluation/FINDINGS.md` (merged, PR #9).
 3. Run `test/pi_latency_benchmark.py` on the Raspberry Pi 4 with the exported weights (row 16).
 4. Rewrite Chapter 3 from the final results (§5 list), build the new Table 3.1, write the results chapter.
 5. Decide the node-to-gateway link with the adviser. Recommendation given 17 Oct: Wi-Fi with the Pi as a local access point (works with no signal/internet; carries full audio so the evaluated model runs as tested); LoRa only for short alert messages over long distances, if needed; on-node TinyML would need a new model and evaluation. Questions: power in the houses, house length and gateway position, nodes per house, how alerts reach the farmer; add an RTC module to the Pi (no internet time).
