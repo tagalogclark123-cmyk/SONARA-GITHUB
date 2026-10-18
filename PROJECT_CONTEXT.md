@@ -2,7 +2,7 @@
 
 **Purpose of this file.** A complete record of the SONARA capstone work done with Claude Code: the project, the data, every methodological decision and why it was made, all results so far, the current state of each notebook, open items, and how the work is done. It exists so that nothing is lost if the conversation is compacted or a new session starts. **Read this first in any new session, and update it whenever something changes** (new results, decisions, pushes, open items).
 
-Last updated: 16 October 2026, after the hyperparameter tuning results came in (Run 2 settings kept). Next expected event: the team runs `SONARA_Final_Evaluation.ipynb` once in Colab and sends the executed notebook link.
+Last updated: 18 October 2026, after the final evaluation results came in. Next: rewrite Chapter 3 and write the results chapter from `results/final_evaluation/FINDINGS.md`; decide the node-to-gateway link (Wi-Fi recommended); Pi timing; playback and field tests.
 
 ---
 
@@ -17,7 +17,7 @@ Last updated: 16 October 2026, after the hyperparameter tuning results came in (
 | Panel | Albert Christopher Daniot II, MDS ("Chooks" in the internal matrix); Angelie P. Sabanal-Abao, MSc; Matthew R. Maulion, MSc (panel head, "Matt") |
 | User in this session | Clark (GitHub `tagalogclark123-cmyk`; the team's Drive account owns the Drive files) |
 | What SONARA is | ESP32 sensing nodes (INMP441 I2S microphone, SX1278 LoRa, 18650 battery) record poultry audio per coop zone; a Raspberry Pi 4 gateway classifies 5-s clips as Distress / Non-distress and raises zone-level alerts via a fixed node-to-zone mapping |
-| Current stage | Panel revisions after the proposal defense; rebuilding the ML pipeline honestly; tuning done (Run 2 settings kept); **final evaluation ready to run** |
+| Current stage | Panel revisions after the proposal defense; **final evaluation done (17 Oct)**; next is manuscript rewriting and the IoT link decision |
 
 ---
 
@@ -40,11 +40,12 @@ Local clone: `D:\SONARA-GITHUB` (an older clone existed at `D:\SONARA GITHUB`, n
 | `SONARA_Run2_FirstPass.ipynb` | Run 2 first pass (normalization, ImageNet weights, recipe), validation only | Done |
 | `SONARA_Run2_SecondPass.ipynb` | Run 2 second pass (no normalization, loudness check, 3-class, gain augmentation) | Done |
 | `SONARA_Hyperparameter_Tuning.ipynb` | Optuna search over 22 training settings for B8; writes `chosen_system_model_config.json` | Done (16 Oct): Run 2 settings kept |
-| `SONARA_Final_Evaluation.ipynb` | Final evaluation: trains B8, C2, A0 on 5 seeds, opens locked test + PVSD once, zone alerts, Pi export | **To run next** |
+| `SONARA_Final_Evaluation.ipynb` | Final evaluation: trains B8, C2, A0 on 5 seeds, opens locked test + PVSD once, zone alerts, Pi export | Done (17 Oct, T4 GPU, test opened once) |
 | `results/run1_baseline_2026-10-12/` | Run 1 record: `RESULTS_AND_DECISIONS.md`, executed notebook, text outputs, figures, `per_run_results.csv` | Committed |
 | `results/run2_first_pass/` | First-pass record: `FINDINGS.md`, executed notebook, text outputs | Committed |
 | `results/run2_second_pass/` | Second-pass record: `FINDINGS.md` (with the B8 decision), executed notebook, text outputs | Committed |
 | `results/hyperparameter_tuning/` | Tuning record: `FINDINGS.md`, executed notebook, text outputs, `search_trials.csv`, `optuna_study.db`, importance CSV and figures, `confirm/*.json`, `confirmation_results.csv`, `chosen_system_model_config.json` | Committed |
+| `results/final_evaluation/` | Final evaluation record: `FINDINGS.md` (all paper tables), executed notebook, text outputs, two figures | Local; not yet committed |
 | `PROJECT_CONTEXT.md` | This file (no private details: the repo is public) | Committed |
 
 Merged pull requests: #1 Chapter 3 pipeline aligned with V2/V6 and 5-s clips · #2 Run 1 record + first-pass notebook · #3 first-pass record + second-pass notebook · #4 tuning notebook · #5 second-pass record + final evaluation · #6 widened hyperparameter search · #7 tuning results + this context file.
@@ -60,7 +61,7 @@ Merged pull requests: #1 Chapter 3 pipeline aligned with V2/V6 and 5-s clips · 
 | Executed Colab notebooks (Run 1, first pass, second pass, tuning) | Team Drive; copies of the executed notebooks are in `results/` |
 | Run 2 outputs | `MyDrive/SONARA/run2_first_pass/`, `MyDrive/SONARA/run2_second_pass/` |
 | Tuning outputs | `MyDrive/SONARA/hyperparameter_tuning/` (also copied to `results/hyperparameter_tuning/`) |
-| Final evaluation outputs (after running) | `MyDrive/SONARA/final_evaluation/` |
+| Final evaluation outputs | `MyDrive/SONARA/final_evaluation/` (tables CSVs, `runs/` weights, `test_predictions/`, `export/` with `sonara_system_model.pt` and `deployment_config.json`) |
 
 To read an executed Colab notebook: `download_file_content` with the file ID, base64-decode the content, parse the JSON, and print stream outputs per cell.
 
@@ -229,6 +230,25 @@ Per seed, C2 vs B8 ROC-AUC: 0.9691/0.9678, 0.9733/0.9723, 0.9674/0.9694 (tie). S
 - **Process problems (do not change the decision):** (1) some sessions had no GPU: trials 23, 27, 32, 33, 34 took 2 to 3.5 h each (about 12.5 of the 20 search hours) and three seed-7 confirmation runs took 1 to 3 h, so only about 70 settings were tried instead of 150 to 200; (2) trials 21 to 25 repeated trials 1 to 5 exactly because the TPE sampler is seeded with a fixed number and restarted after a disconnect (66 distinct settings). Fix for any future use: seed the sampler per session.
 - **Decision: Run 2 settings kept** (written to `chosen_system_model_config.json`). Record: `results/hyperparameter_tuning/FINDINGS.md` (includes suggested paper wording and the process problems).
 
+### Final evaluation (17 Oct 2026, T4 GPU): **the paper's numbers**
+
+Locked test set 871 clips (597 Non-distress, 274 Distress; majority accuracy 0.685), opened once (fingerprint `2dbc43ca6501`). Mean ± SD over 5 seeds.
+
+| Model | Acc @90% | Recall @90% | FPR @90% | ROC-AUC | Acc @95% | Recall @95% | FPR @95% | Acc @0.5 |
+| :- | :- | :- | :- | :- | :- | :- | :- | :- |
+| **B8 MobileNetV3-Small** | 0.913 ± 0.007 | 0.873 ± 0.016 | 0.069 ± 0.007 | 0.962 ± 0.006 | 0.891 | 0.942 | 0.132 | 0.911 |
+| C2 EfficientNet-B0 | 0.928 | 0.876 | 0.048 | 0.969 | 0.906 | 0.941 | 0.110 | 0.930 |
+| A0 CNN–BiLSTM (Run 1 settings) | 0.867 | 0.872 | 0.136 | 0.934 | 0.816 | 0.924 | 0.234 | 0.880 |
+
+- B8 95% CIs at 90%: accuracy 0.897–0.929, recall 0.835–0.908, FPR 0.052–0.087, ROC-AUC 0.948–0.973.
+- B8 beats A0 on all 5 seeds (ROC-AUC, accuracy, F1, FPR) at 90%. **C2 beats B8 on all 5 seeds at 90%** (accuracy +1.5 points, FPR −2.1 points, ROC-AUC +0.008; CIs overlap); at 95% not clearly different. B8 stays the system model (declared beforehand on a validation tie; smaller, faster, level-robust); switching now would be choosing by test score.
+- Loudness (recall at −20 / 0 / +20 dB, 90% threshold): B8 0.836 / 0.873 / 0.882; C2 0.649 / 0.876 / 0.661; A0 0.199 / 0.872 / 0.525.
+- False alarms at 90%: healthy calls 10.2%, noise 3.8% (B8). 90% → 95%: missed distress 12.7% → 5.8%, FPR 6.9% → 13.2%.
+- PVSD (per file, 90%): B8 accuracy 0.758 (above 0.650 majority), recall 0.759, FPR 0.243, ROC-AUC 0.825; C2 0.791 / 0.549 / 0.079 / 0.833; A0 0.549. At 95% B8 0.580.
+- Zone simulation: 90% rule 8 of 20 clips, 0.26 false alert-hours per healthy zone per week, median 16 min to alert at outbreak share 0.3; 95% rule 10 of 20, 0.60, 18 min.
+- Export: `sonara_system_model.pt` (6.6 MB TorchScript, B8 seed 42, thresholds 0.535 / 0.24).
+- Four notebook cells lost their printed output in the saved copy; the same results are in the Drive CSVs and in `results/final_evaluation/FINDINGS.md`.
+
 ---
 
 ## 8. Hyperparameter tuning (`SONARA_Hyperparameter_Tuning.ipynb`, design; run finished 16 Oct)
@@ -258,10 +278,10 @@ Per seed, C2 vs B8 ROC-AUC: 0.9691/0.9678, 0.9733/0.9723, 0.9674/0.9694 (tie). S
 ## 10. Open items and next steps
 
 1. ~~Run the tuning notebook~~ Done 16 Oct; Run 2 settings kept; record in `results/hyperparameter_tuning/` (committed).
-2. **Run the final evaluation once**, start to finish, on a GPU session; do not change settings after Stage C. It reads `chosen_system_model_config.json` from `MyDrive/SONARA/hyperparameter_tuning/`. Record results in `results/final_evaluation/`.
+2. ~~Run the final evaluation once~~ Done 17 Oct; record in `results/final_evaluation/FINDINGS.md` (not yet committed).
 3. Run `test/pi_latency_benchmark.py` on the Raspberry Pi 4 with the exported weights (row 16).
 4. Rewrite Chapter 3 from the final results (§5 list), build the new Table 3.1, write the results chapter.
-5. Decide the node-to-gateway link (LoRa vs Wi-Fi vs on-node model) with the adviser.
+5. Decide the node-to-gateway link with the adviser. Recommendation given 17 Oct: Wi-Fi with the Pi as a local access point (works with no signal/internet; carries full audio so the evaluated model runs as tested); LoRa only for short alert messages over long distances, if needed; on-node TinyML would need a new model and evaluation. Questions: power in the houses, house length and gateway position, nodes per house, how alerts reach the farmer; add an RTC module to the Pi (no internet time).
 6. Playback calibration (coverage and cross-zone leakage) and field validation with the campus veterinarian (Claveria approval pending).
 7. Fill in the Internal Revision Matrix answers (draft answers exist in the Revision Matrix Answers doc; some need updating to the new model and results).
 8. Research pipeline diagram (row 6).
@@ -313,3 +333,4 @@ Per seed, C2 vs B8 ROC-AUC: 0.9691/0.9678, 0.9733/0.9723, 0.9674/0.9694 (tie). S
 - 16 Oct 2026: tuning results added (Run 2 settings kept); next step is the final evaluation.
 - 16 Oct 2026: tuning output files from the user's zip added to `results/hyperparameter_tuning/`; recorded CPU sessions and repeated trials.
 - 16 Oct 2026: removed Drive file IDs, the team email and private details before pushing (the repo is public); they are kept in Claude's local memory. Merged as PR #7.
+- 18 Oct 2026: final evaluation results added; IoT link discussion: Wi-Fi with the Pi as a local access point recommended (no internet needed); LoRa only for long-distance alert messages if needed.
