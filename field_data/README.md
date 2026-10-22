@@ -8,8 +8,8 @@ model or its threshold was changed because of them.
 
 | Session | Date / time | Birds | Health status (source) | Clips | Flagged (p >= 0.535) | Max p | Zone alert |
 |---|---|---|---|---|---|---|---|
-| [`2026-10-22_damilag_s1`](2026-10-22_damilag_s1/) | 22 Oct 2026, 12:15-13:16 | 4 chicks, 2 weeks old | healthy (caretaker report) | 123 | 5 (4.1%) | 0.659 | none |
-| [`2026-10-22_damilag_s2`](2026-10-22_damilag_s2/) | 22 Oct 2026, 13:37-14:34 | older birds, number not recorded | respiratory illness (caretaker report) | 114 | 5 (4.4%) | 0.922 | none |
+| [`2026-10-22_damilag_s1`](2026-10-22_damilag_s1/) | 22 Oct 2026, 12:15-13:16 | 4 chicks, 3 weeks old | healthy (caretaker report) | 123 | 5 (4.1%) | 0.659 | none |
+| [`2026-10-22_damilag_s2`](2026-10-22_damilag_s2/) | 22 Oct 2026, 13:37-14:34 | 4 birds, 3 months old | respiratory illness (caretaker report) | 114 | 5 (4.4%) | 0.922 | none |
 
 Machine-readable version: [`sessions.csv`](sessions.csv). Each session folder has its own README with full details.
 

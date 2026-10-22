@@ -5,7 +5,7 @@
 | Date and time | 22 Oct 2026, 12:15:40 to 13:16:41 (Asia/Manila), about 1 h |
 | Site | Palitoc compound, Damilag |
 | Pen label used in reports | Chick pen (node 1) |
-| Birds | 4 chicks, 2 weeks old |
+| Birds | 4 chicks, 3 weeks old |
 | Health status | healthy, **caretaker report** (no veterinary examination) |
 | Mic position | node on top of the cage, touching it; less than 1 m from the birds |
 | Observer | Karl Michael Gaca |
@@ -28,7 +28,7 @@
 
 ## Limitations
 
-- 2-week-old chicks are probably younger than the birds in the SmartEars training data, so this is an out-of-domain check.
+- 3-week-old chicks are probably younger than the birds in the SmartEars training data, so this is an out-of-domain check.
 - Only 4 birds; one pen; one hour.
 - Mic touched the cage, so bumps from the birds may be in the audio.
 - Caretaker report, not a veterinary check.

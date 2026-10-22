@@ -5,7 +5,7 @@
 | Date and time | 22 Oct 2026, 13:37:52 to 14:34:22 (Asia/Manila), about 1 h |
 | Site | Palitoc compound, Damilag |
 | Pen label used in reports | Distress pen (node 1) |
-| Birds | older than session 1; number, age and breed **not recorded** |
+| Birds | 4 birds, 3 months old (breed not recorded) |
 | Health status | respiratory illness, **caretaker report** (no veterinary examination). Specific signs, number of affected birds, duration and medication **not recorded** |
 | Behaviour during recording | birds mostly sleeping/lethargic (observer note, 14:33) |
 | Mic position | not recorded |
@@ -32,5 +32,5 @@ Same flag rate (4.1% vs 4.4%) and same median probability (0.065 vs 0.064). At t
 ## Limitations
 
 - Birds were mostly resting, so there may have been few or no distress sounds to record.
-- Missing details (bird count, age, signs, mic distance) limit interpretation; add them here if the caretaker can still provide them.
-- Caretaker report, not a veterinary check. One pen, one hour.
+- Missing details (breed, specific signs, mic distance) limit interpretation; add them here if the caretaker can still provide them.
+- Only 4 birds. Caretaker report, not a veterinary check. One pen, one hour.
