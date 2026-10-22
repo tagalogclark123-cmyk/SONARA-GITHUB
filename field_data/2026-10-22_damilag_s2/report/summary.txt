@@ -1,0 +1,64 @@
+SONARA FIELD SESSION REPORT
+============================================================
+Report:   damilag_session2   Site: Palitoc compound, Damilag
+Session:  2026-10-22 13:37 to 14:34 (0.9 h), 114 clips
+Model:    B8_mobilenet_pre_recipe_gain, seed 42; 0.90-recall operating point, threshold 0.535; zone alert when 8 of the last 20 clips are flagged
+
+1. RECORDING COVERAGE AND AUDIO QUALITY
+   Distress pen: 114 clip(s) of about 114 expected (100.0%), 13:37-14:34
+      level (200-4000 Hz): median -54.3 dBFS (10th-90th pct -60.1 to -39.9); median peak 7189
+      very quiet clips (< -60 dBFS): 12   clipped (>0.1% of samples): 0   with lost packets: 3
+   Where the sound energy is (median share per band, all clips) vs SmartEars training clips:
+         <250 Hz    250-1k     1k-4k     4k-8k
+           88.0%      7.2%      4.2%      0.4%   this session
+           73.6%     12.1%     11.5%      0.9%   SmartEars Healthy
+           94.9%      3.3%      1.8%      0.3%   SmartEars Sick
+           82.8%     11.5%      3.0%      0.6%   SmartEars None
+
+2. MODEL OUTPUT
+   Flagged clips: 5 of 114 (4.4%)
+      Distress pen: 5 of 114 (4.4%), median probability 0.064
+   Probability distribution (all clips):
+   0.00-0.10 | ######################################## 74
+   0.10-0.20 | #########                                17
+   0.20-0.30 | #####                                    10
+   0.30-0.40 | ##                                       3
+   0.40-0.50 | ##                                       4
+   0.50-0.54 | #                                        1
+   0.54-0.60 |                                          0
+   0.60-0.70 | #                                        2
+   0.70-0.80 | #                                        1
+   0.80-0.90 | #                                        1
+   0.90-1.00 | #                                        1
+   Clips within 0.10 of the threshold (borderline): 5
+
+   By 30-minute block:
+      time        Distress pen
+      13:30       1/45   (2.2%)
+      14:00       4/60   (6.7%)
+      14:30       0/9    (0.0%)
+
+3. ZONE ALERTS (rule: 8 of the last 20 clips flagged, per node)
+   No zone alert during this session.
+
+4. MOST STRONGLY FLAGGED CLIPS (listen to these first)
+   14:00:52  Distress pen     p=0.922  level -57 dBFS  node1_clip00046_20261022-140052.wav
+   14:04:22  Distress pen     p=0.849  level -55 dBFS  node1_clip00053_20261022-140422.wav
+   13:47:51  Distress pen     p=0.733  level -60 dBFS  node1_clip00020_20261022-134751.wav
+   14:04:52  Distress pen     p=0.659  level -49 dBFS  node1_clip00054_20261022-140452.wav
+   14:15:22  Distress pen     p=0.632  level -58 dBFS  node1_clip00075_20261022-141522.wav
+
+5. SPEED: inference per clip on this Pi: median 99 ms, 95th percentile 273 ms
+
+6. BLIND LISTENING SET: 20 clips in review/ (5 flagged, 15 not flagged, shuffled).
+   Listen and fill in review/review_sheet.csv WITHOUT opening review_key.csv. Ideally have a veterinarian
+   or experienced poultry worker listen too. Then compare with review_key.csv.
+
+HOW TO READ THIS REPORT
+   - There is no ground truth for these clips, so this report gives no accuracy or recall.
+   - 'Flagged' = acoustic patterns similar to the distress clips in the training data. It is a cue for
+     closer observation, not a diagnosis, and the flagged share is not the share of sick birds.
+   - A low flag rate does not prove the flock is healthy: the replay test showed the model can miss
+     distress sounds when the microphone path changes the sound's frequency balance (see section 1).
+   - Compare the flags with field_notes.csv (what people saw) and the blind listening results before
+     drawing any conclusion.
