@@ -1,0 +1,61 @@
+SONARA FIELD SESSION REPORT
+============================================================
+Report:   2026-10-24_gaca_s3   Site: Gaca residence
+Session:  2026-10-24 11:24 to 11:46 (0.4 h), 50 clips, 34 usable (damaged = more than 33 of 667 radio packets lost)
+Model:    B8_mobilenet_pre_recipe_gain, seed 42; 0.90-recall operating point, threshold 0.535; zone alert when 8 of the last 20 clips are flagged
+
+1. RECORDING COVERAGE AND AUDIO QUALITY
+   Cage: 50 clip(s) of about 45 expected (111.1%), 11:24-11:46
+      level of undamaged clips (200-4000 Hz): median -47.4 dBFS (10th-90th pct -52.4 to -44.7); median peak 3862
+      very quiet undamaged clips (< -60 dBFS): 0   clipped (>0.1% of samples): 0   with lost packets: 24
+      ! DAMAGED clips (> 33 packets lost): 16 of 50, of which 0 almost empty; first 11:28, last 11:36. Left out of everything below.
+   Everything below uses the 34 usable clips only.
+   Where the sound energy is (median share per band, all clips) vs SmartEars training clips:
+         <250 Hz    250-1k     1k-4k     4k-8k
+           80.8%      5.3%     11.2%      0.8%   this session
+           73.6%     12.1%     11.5%      0.9%   SmartEars Healthy
+           94.9%      3.3%      1.8%      0.3%   SmartEars Sick
+           82.8%     11.5%      3.0%      0.6%   SmartEars None
+
+2. MODEL OUTPUT
+   Flagged clips: 1 of 34 (2.9%)
+      Cage: 1 of 34 (2.9%), median probability 0.082
+   Probability distribution (all clips):
+   0.00-0.10 | ######################################## 21
+   0.10-0.20 | ########                                 4
+   0.20-0.30 | ########                                 4
+   0.30-0.40 | ##                                       1
+   0.40-0.50 | ####                                     2
+   0.50-0.54 | ##                                       1
+   0.54-0.60 |                                          0
+   0.60-0.70 | ##                                       1
+   0.70-0.80 |                                          0
+   0.80-0.90 |                                          0
+   0.90-1.00 |                                          0
+   Clips within 0.10 of the threshold (borderline): 4
+
+   By 30-minute block:
+      time                Cage
+      11:00       1/11   (9.1%)
+      11:30       0/23   (0.0%)
+
+3. ZONE ALERTS (rule: 8 of the last 20 clips flagged, per node)
+   No zone alert during this session.
+
+4. MOST STRONGLY FLAGGED CLIPS (listen to these first)
+   11:28:09  Cage             p=0.632  level -51 dBFS  node1_clip00008_20261024-112809.wav
+
+5. SPEED: inference per clip on the machine that ran this report: median 17 ms, 95th percentile 54 ms
+
+6. BLIND LISTENING SET: 16 clips in review/ (1 flagged, 15 not flagged, shuffled).
+   Listen and fill in review/review_sheet.csv WITHOUT opening review_key.csv. Ideally have a veterinarian
+   or experienced poultry worker listen too. Then compare with review_key.csv.
+
+HOW TO READ THIS REPORT
+   - There is no ground truth for these clips, so this report gives no accuracy or recall.
+   - 'Flagged' = acoustic patterns similar to the distress clips in the training data. It is a cue for
+     closer observation, not a diagnosis, and the flagged share is not the share of sick birds.
+   - A low flag rate does not prove the flock is healthy: the replay test showed the model can miss
+     distress sounds when the microphone path changes the sound's frequency balance (see section 1).
+   - Compare the flags with field_notes.csv (what people saw) and the blind listening results before
+     drawing any conclusion.

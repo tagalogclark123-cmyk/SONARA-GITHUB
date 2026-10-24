@@ -65,6 +65,7 @@ BAND_NAMES = ["<250 Hz", "250-1k", "1k-4k", "4k-8k"]
 # Share of sound energy per band (median over 40 random clips per class from the SmartEars locked test set,
 # resampled to 16 kHz exactly like the model input). Measured by Claude, 22 Oct 2026. Reference only.
 SMARTEARS_REF = {"Healthy": [73.6, 12.1, 11.5, 0.9], "Sick": [94.9, 3.3, 1.8, 0.3], "None": [82.8, 11.5, 3.0, 0.6]}
+MAX_LOST_PACKETS = 33          # a clip missing more than 5% of its 667 packets is "damaged": left out of all statistics
 QUIET_DB = -60.0               # in-band (200-4000 Hz) level below this: probably nothing audible near the mic
 CLIP_LEVEL = 32700
 
@@ -271,7 +272,7 @@ def main():
 
     fields = ["time", "file", "node", "zone", "clip_id", "bytes", "probability", "threshold", "flagged", "inference_ms",
               "level_db", "peak", "clipped_pct", "lost_packets_est", "short_clip",
-              "band_low_pct", "band_lowmid_pct", "band_mid_pct", "band_high_pct", "error"]
+              "band_low_pct", "band_lowmid_pct", "band_mid_pct", "band_high_pct", "usable", "error"]
     rows, errors = [], []
     t_start = time.time()
     for k, path in enumerate(files, 1):
@@ -291,6 +292,8 @@ def main():
             except Exception as e:  # damaged file: keep a row so it shows up in the report
                 r["error"] = str(e)[:120]
         r["zone"] = zone_name(node)
+        if not r.get("error"):
+            r["usable"] = int(int(float(r["lost_packets_est"])) <= MAX_LOST_PACKETS)
         rows.append(r)
         if k % 50 == 0 or k == len(files):
             print(f"  {k}/{len(files)} clips ({time.time() - t_start:.0f} s)", flush=True)
@@ -322,26 +325,39 @@ def main():
     L.append("SONARA FIELD SESSION REPORT")
     L.append("=" * 60)
     L.append(f"Report:   {name}" + (f"   Site: {a.site}" if a.site else ""))
-    L.append(f"Session:  {t_first:%Y-%m-%d %H:%M} to {t_last:%H:%M} ({dur_s / 3600:.1f} h), {len(good)} clips"
+    allr = good
+    usable = [r for r in allr if r["lost"] <= MAX_LOST_PACKETS]
+    L.append(f"Session:  {t_first:%Y-%m-%d %H:%M} to {t_last:%H:%M} ({dur_s / 3600:.1f} h), {len(allr)} clips, "
+             f"{len(usable)} usable (damaged = more than {MAX_LOST_PACKETS} of 667 radio packets lost)"
              + (f", {len(errors)} unreadable" if errors else ""))
     L.append(f"Model:    {model.desc}; {model.key}-recall operating point, threshold {thr}; "
              f"zone alert when {model.needed} of the last {model.window} clips are flagged")
     L.append("")
     L.append("1. RECORDING COVERAGE AND AUDIO QUALITY")
     for n in nodes:
-        R = [r for r in good if r["node"] == n]
+        R = [r for r in allr if r["node"] == n]
         span = (R[-1]["time"] - R[0]["time"]).total_seconds() + CYCLE_S
         exp = max(int(round(span / CYCLE_S)), 1)
-        quiet = sum(r["level"] < QUIET_DB for r in R)
+        Ru = [r for r in R if r["lost"] <= MAX_LOST_PACKETS] or R   # levels only from undamaged clips
+        quiet = sum(r["level"] < QUIET_DB for r in Ru)
         clipped = sum(r["clip"] > 0.1 for r in R)
         lost = sum(r["lost"] > 0 for r in R)
         L.append(f"   {zone_name(n)}: {len(R)} clip(s) of about {exp} expected ({pct(len(R), exp)}), "
                  f"{R[0]['time']:%H:%M}-{R[-1]['time']:%H:%M}")
-        L.append(f"      level (200-4000 Hz): median {np.median([r['level'] for r in R]):.1f} dBFS "
-                 f"(10th-90th pct {np.percentile([r['level'] for r in R], 10):.1f} to "
-                 f"{np.percentile([r['level'] for r in R], 90):.1f}); median peak {int(np.median([r['peak'] for r in R]))}")
-        L.append(f"      very quiet clips (< {QUIET_DB:.0f} dBFS): {quiet}   clipped (>0.1% of samples): {clipped}   "
+        L.append(f"      level of undamaged clips (200-4000 Hz): median {np.median([r['level'] for r in Ru]):.1f} dBFS "
+                 f"(10th-90th pct {np.percentile([r['level'] for r in Ru], 10):.1f} to "
+                 f"{np.percentile([r['level'] for r in Ru], 90):.1f}); median peak {int(np.median([r['peak'] for r in Ru]))}")
+        L.append(f"      very quiet undamaged clips (< {QUIET_DB:.0f} dBFS): {quiet}   clipped (>0.1% of samples): {clipped}   "
                  f"with lost packets: {lost}")
+        dmg = [r for r in R if r["lost"] > MAX_LOST_PACKETS]
+        if dmg:
+            empty = sum(r["lost"] >= 660 for r in dmg)
+            L.append(f"      ! DAMAGED clips (> {MAX_LOST_PACKETS} packets lost): {len(dmg)} of {len(R)}, of which {empty} almost "
+                     f"empty; first {dmg[0]['time']:%H:%M}, last {dmg[-1]['time']:%H:%M}. Left out of everything below.")
+    good = usable
+    if not good:
+        sys.exit("No usable clips (all damaged by lost packets).")
+    L.append(f"   Everything below uses the {len(good)} usable clips only.")
     bands = np.array([r["bands"] for r in good])
     L.append("   Where the sound energy is (median share per band, all clips) vs SmartEars training clips:")
     L.append("      " + "".join(f"{b:>10}" for b in BAND_NAMES))
@@ -399,7 +415,7 @@ def main():
         L.append("   (no flagged clips)")
     ms = np.array([r["ms"] for r in good])
     L.append("")
-    L.append(f"5. SPEED: inference per clip on this Pi: median {np.median(ms):.0f} ms, 95th percentile {np.percentile(ms, 95):.0f} ms")
+    L.append(f"5. SPEED: inference per clip on the machine that ran this report: median {np.median(ms):.0f} ms, 95th percentile {np.percentile(ms, 95):.0f} ms")
     L.append("")
 
     # ---- blind review set
