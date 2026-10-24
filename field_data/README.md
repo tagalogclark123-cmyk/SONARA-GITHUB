@@ -12,6 +12,7 @@ model or its threshold was changed because of them.
 | [`2026-10-22_damilag_s2`](2026-10-22_damilag_s2/) | 22 Oct 2026, 13:37-14:34 | 4 birds, 3 months old | respiratory illness (caretaker report) | 114 | 5 (4.4%) | 0.922 | none |
 | [`2026-10-24_gaca_s3`](2026-10-24_gaca_s3/) | 24 Oct 2026, 11:24-11:46 | 17 birds, about 4 weeks old | all healthy except one sick bird (owner report) | 50 (34 usable) | 1 of 34 (2.9%) | 0.632 | none |
 | [`2026-10-24_gaca_s4`](2026-10-24_gaca_s4/) | 24 Oct 2026, 11:53-12:43 | same birds as s3 | same as s3 | 108 (**19 usable**) | 0 of 19 | 0.400 | none |
+| [`2026-10-24_palitoc_s5`](2026-10-24_palitoc_s5/) | 24 Oct 2026, 14:48-15:21 | same sick birds as s2 | respiratory illness (caretaker report) | 68 (61 usable) | 0 of 61 | 0.469 | none |
 
 Flag counts use usable clips only (see "Damaged clips" below). Machine-readable version: [`sessions.csv`](sessions.csv). Each session folder has its own README with full details.
 
@@ -58,6 +59,8 @@ Flag counts use usable clips only (see "Damaged clips" below). Machine-readable 
 - Inference on the Pi in the field (22 Oct): median about 100 ms, 95th percentile about 270 ms (bench: 52 / 127 ms). Possible thermal or power throttling; not yet checked.
 - 24 Oct (sessions 3 and 4): the ESP-NOW link failed for long stretches (105 of 158 clips damaged, 80 almost empty). An empty clip gets probability 0.355 and partly empty clips can cross the threshold: the 3 live flags in session 4 came from damaged clips. Damaged clips must be filtered before any analysis.
 - In the usable 24 Oct clips (17 birds, one reported sick), 1 of 53 clips was flagged (borderline, 0.632).
+- Session 5 re-recorded the sick birds from session 2: 0 of 61 usable clips flagged (session 2: 5 of 114, three strong). One damaged clip in session 5 scored 0.969, confirming that damaged clips must be filtered.
+- Across all sessions so far, the model has not separated reported-sick from reported-healthy birds at the session level.
 
 ## Consent and privacy
 
