@@ -57,8 +57,9 @@ a { color: inherit; }
 .app { display: grid; grid-template-columns: 270px minmax(0, 1fr); min-height: 100vh; background: linear-gradient(to right, var(--side) 269px, var(--line) 269px, var(--line) 270px, var(--bg) 270px); }
 .side { background: var(--side); border-right: 1px solid var(--line); display: flex; flex-direction: column; gap: 24px; padding: 22px 16px; position: sticky; top: 0; height: 100vh; }
 .brand { display: flex; align-items: center; gap: 12px; padding: 0 6px; }
-.logo { width: 42px; height: 42px; flex: none; display: block; }
+.logo { width: 48px; height: 48px; flex: none; display: block; }
 .logo svg, .logo img { width: 100%; height: 100%; display: block; border-radius: 10px; object-fit: contain; }
+.logo img { background: #fff; border: 1px solid var(--line); }
 .logo-bg { fill: var(--green-soft); }
 .logo-bars rect { fill: var(--green); }
 .brand-text { display: grid; }
