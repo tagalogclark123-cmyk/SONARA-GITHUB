@@ -1,0 +1,266 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>SONARA</title>
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+<div class="app">
+
+  <!-- ============================== Sidebar ============================== -->
+  <aside class="side">
+    <div class="brand">
+      <span class="logo" id="logo">
+        <svg viewBox="0 0 40 40" aria-hidden="true"><rect width="40" height="40" rx="10" class="logo-bg"/><g class="logo-bars"><rect x="8" y="17" width="3" height="6" rx="1.5"/><rect x="13" y="12" width="3" height="16" rx="1.5"/><rect x="18.5" y="8" width="3" height="24" rx="1.5"/><rect x="24" y="13" width="3" height="14" rx="1.5"/><rect x="29" y="16" width="3" height="8" rx="1.5"/></g></svg>
+      </span>
+      <div class="brand-text">
+        <span class="brand-name">SONARA</span>
+        <span class="brand-sub">Poultry House Monitoring System</span>
+      </div>
+    </div>
+
+    <nav class="nav" aria-label="Main">
+      <span class="nav-label">Navigation</span>
+      <a href="#dashboard" class="nav-item" data-view="dashboard">
+        <svg class="ic" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="9" rx="1"/><rect x="14" y="3" width="7" height="5" rx="1"/><rect x="14" y="12" width="7" height="9" rx="1"/><rect x="3" y="16" width="7" height="5" rx="1"/></svg>
+        <span>Dashboard</span>
+      </a>
+      <a href="#replay" class="nav-item" data-view="replay">
+        <svg class="ic" viewBox="0 0 24 24"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+        <span>Zone Replay</span>
+      </a>
+      <a href="#sounds" class="nav-item" data-view="sounds">
+        <svg class="ic" viewBox="0 0 24 24"><path d="M11 5 6 9H2v6h4l5 4V5z"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/></svg>
+        <span>Unusual Sounds</span>
+        <span class="nav-badge" id="nav-sounds-count" hidden></span>
+      </a>
+      <span class="nav-label nav-label-2">General</span>
+      <a href="#help" class="nav-item" data-view="help">
+        <svg class="ic" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><path d="M12 17h.01"/></svg>
+        <span>Help</span>
+      </a>
+    </nav>
+
+    <p class="side-note">SONARA listens for breathing-related sounds. It does not diagnose disease.</p>
+  </aside>
+
+  <!-- ============================== Main ============================== -->
+  <div class="main">
+    <header class="top">
+      <div class="top-date" id="top-date">Loading…</div>
+      <div class="top-tools">
+        <label class="rec-select">
+          <span class="sr">Recording</span>
+          <select id="recording" aria-label="Recording"></select>
+        </label>
+        <span class="chip-status"><span class="dot dot-amber"></span>Recorded data</span>
+        <button type="button" class="icon-btn" id="theme" aria-label="Switch light or dark mode">
+          <svg class="ic" viewBox="0 0 24 24"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+        </button>
+      </div>
+    </header>
+
+    <main class="content">
+      <p class="error" id="error" hidden></p>
+
+      <!-- ------------------------------ Dashboard ------------------------------ -->
+      <section class="view" data-view="dashboard">
+        <div class="page-head">
+          <div>
+            <h1>Dashboard</h1>
+            <p class="page-sub">Sound monitoring of your poultry pens</p>
+          </div>
+          <button type="button" class="btn" id="refresh">
+            <svg class="ic" viewBox="0 0 24 24"><path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/><path d="M8 16H3v5"/></svg>
+            Refresh
+          </button>
+        </div>
+
+        <div class="kpis">
+          <div class="kpi">
+            <span class="kpi-ic ic-green"><svg class="ic" viewBox="0 0 24 24"><path d="M16 7h.01"/><path d="M3.4 18H12a8 8 0 0 0 8-8V7a4 4 0 0 0-7.28-2.3L2 20"/><path d="m20 7 2 .5-2 .5"/><path d="M10 18v3"/><path d="M14 17.75V21"/><path d="M7 18a6 6 0 0 0 3.84-10.61"/></svg></span>
+            <span class="kpi-value" id="k-birds">—</span>
+            <span class="kpi-label">Birds in pen</span>
+            <span class="kpi-sub" id="k-birds-sub"></span>
+          </div>
+          <div class="kpi">
+            <span class="kpi-ic ic-red"><svg class="ic" viewBox="0 0 24 24"><path d="M11 5 6 9H2v6h4l5 4V5z"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/></svg></span>
+            <span class="kpi-value" id="k-unusual">—</span>
+            <span class="kpi-label">Unusual sounds</span>
+            <span class="kpi-sub" id="k-unusual-sub"></span>
+          </div>
+          <div class="kpi">
+            <span class="kpi-ic ic-blue"><svg class="ic" viewBox="0 0 24 24"><path d="M5 12.55a11 11 0 0 1 14.08 0"/><path d="M1.42 9a16 16 0 0 1 21.16 0"/><path d="M8.53 16.11a6 6 0 0 1 6.95 0"/><path d="M12 20h.01"/></svg></span>
+            <span class="kpi-value" id="k-link">—</span>
+            <span class="kpi-label">Sensor connection</span>
+            <span class="kpi-sub" id="k-link-sub"></span>
+          </div>
+          <div class="kpi">
+            <span class="kpi-ic ic-amber"><svg class="ic" viewBox="0 0 24 24"><path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg></span>
+            <span class="kpi-value" id="k-alerts">—</span>
+            <span class="kpi-label">"Check birds" alerts</span>
+            <span class="kpi-sub" id="k-alerts-sub"></span>
+          </div>
+        </div>
+
+        <div class="dash-grid">
+          <div class="dash-left">
+            <div class="section-head">
+              <h2>Recorded pens</h2>
+              <span class="pill-soft">
+                <svg class="ic" viewBox="0 0 24 24"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><path d="M12 19v3"/></svg>
+                Click a pen to open it
+              </span>
+            </div>
+            <div class="zones" id="zones"></div>
+
+            <div class="row-2">
+              <div class="card">
+                <div class="card-head"><h2>Sensor node</h2><span class="muted" id="node-count"></span></div>
+                <div id="nodes"></div>
+              </div>
+              <div class="card">
+                <div class="card-head"><h2>Recent activity</h2><button type="button" class="link-btn" id="activity-toggle">View all</button></div>
+                <ul class="activity" id="activity"></ul>
+              </div>
+            </div>
+          </div>
+
+          <div class="dash-right">
+            <div class="alert-panel" id="alert-panel">
+              <div class="alert-top">
+                <span class="alert-ic" id="alert-ic"></span>
+                <div class="alert-titles">
+                  <span class="alert-title" id="alert-title">—</span>
+                  <span class="alert-sub" id="alert-sub"></span>
+                </div>
+                <span class="alert-badge" id="alert-badge"></span>
+              </div>
+              <div class="alert-body">
+                <h3 id="alert-heading"></h3>
+                <p id="alert-text"></p>
+                <div class="alert-facts">
+                  <div class="fact">
+                    <span class="fact-label"><svg class="ic" viewBox="0 0 24 24"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>Pen</span>
+                    <span class="fact-value" id="alert-pen"></span>
+                  </div>
+                  <div class="fact">
+                    <span class="fact-label"><svg class="ic" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg><span id="alert-time-label">Time</span></span>
+                    <span class="fact-value" id="alert-time"></span>
+                  </div>
+                </div>
+                <div class="action-box" id="action-box">
+                  <span class="action-label"><svg class="ic" viewBox="0 0 24 24"><rect x="8" y="2" width="8" height="4" rx="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/></svg>What to do</span>
+                  <p id="action-text"></p>
+                </div>
+                <p class="link-warning" id="link-warning" hidden></p>
+                <div class="alert-buttons">
+                  <a href="#sounds" class="btn btn-primary" id="btn-listen">Listen to sounds</a>
+                  <a href="#replay" class="btn">Open replay</a>
+                </div>
+              </div>
+            </div>
+
+            <div class="card">
+              <h2>Sounds in this recording</h2>
+              <div class="donut-wrap">
+                <div class="donut" id="donut"></div>
+                <ul class="donut-legend" id="donut-legend"></ul>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ------------------------------ Replay ------------------------------ -->
+      <section class="view" data-view="replay" hidden>
+        <div class="page-head"><div><h1>Zone Replay</h1><p class="page-sub" id="replay-sub"></p></div></div>
+
+        <div class="card">
+          <h2>Zone status, replayed clip by clip</h2>
+          <div class="replay-top">
+            <div class="status-pill st-none" id="pill">—</div>
+            <div class="msgbox">
+              <p class="msg" id="msg"></p>
+              <p class="muted" id="sub"></p>
+            </div>
+          </div>
+          <div class="controls">
+            <button type="button" class="btn" id="play">Play</button>
+            <input type="range" id="slider" min="0" max="0" step="1" value="0" aria-label="Time in recording">
+            <span class="clock" id="clock"></span>
+            <button type="button" class="btn" id="listen">Listen</button>
+          </div>
+          <ul class="legend">
+            <li><span class="tag st-normal">Normal</span>No unusual sounds</li>
+            <li><span class="tag st-watch">Watch</span>Some unusual sounds</li>
+            <li><span class="tag st-alert">Check birds</span>Many unusual sounds</li>
+            <li><span class="tag st-none">No data</span>Sensor not sending</li>
+          </ul>
+        </div>
+
+        <div class="card">
+          <div class="card-head"><h2>This sound</h2><button type="button" class="btn btn-small pics-toggle">Show sound picture</button></div>
+          <div id="replay-sound"></div>
+          <p class="spec-key pic-only">Bright marks are sounds. Press Play and follow the white line.</p>
+        </div>
+
+        <div class="card">
+          <h2>When unusual sounds were heard</h2>
+          <ul class="keys"><li><span class="sw sw-ok"></span>Normal</li><li><span class="sw sw-bad"></span>Unusual sound</li><li><span class="sw sw-lost"></span>Not received</li></ul>
+          <div class="strip" id="strip"></div>
+        </div>
+      </section>
+
+      <!-- ------------------------------ Sounds ------------------------------ -->
+      <section class="view" data-view="sounds" hidden>
+        <div class="page-head"><div><h1>Unusual Sounds</h1><p class="page-sub" id="sounds-sub"></p></div></div>
+        <div class="card">
+          <div class="card-head">
+            <p class="muted">Play each sound. Listen for coughing, sneezing or noisy breathing. Compare it with a normal sound from the same pen.</p>
+            <button type="button" class="btn btn-small pics-toggle">Show sound pictures</button>
+          </div>
+          <p class="spec-key pic-only">Bright marks are sounds. Press Play and follow the white line.</p>
+          <p class="empty" id="flag-empty" hidden>No unusual sounds in this recording.</p>
+          <ul class="sounds" id="sounds"></ul>
+        </div>
+      </section>
+
+      <!-- ------------------------------ Help ------------------------------ -->
+      <section class="view" data-view="help" hidden>
+        <div class="page-head"><div><h1>Help</h1><p class="page-sub">How to read the dashboard</p></div></div>
+        <div class="help-grid">
+          <div class="card">
+            <h2>What the status means</h2>
+            <ul class="help-list">
+              <li><span class="tag st-normal">Normal</span>No unusual sounds heard recently.</li>
+              <li><span class="tag st-watch">Watch</span>Some unusual sounds. Listen to them and look at the birds when you can.</li>
+              <li><span class="tag st-alert">Check birds</span>Many unusual sounds close together. Check the birds in this pen.</li>
+              <li><span class="tag st-none">No data</span>The sensor stopped sending sound. Check the sensor, its power and its distance to the receiver.</li>
+            </ul>
+          </div>
+          <div class="card">
+            <h2>What SONARA can and cannot do</h2>
+            <ul class="help-list plain">
+              <li>It listens for coughing, sneezing and other breathing-related sounds, and tells you which pen they came from.</li>
+              <li>It cannot tell which disease the birds have. Only a veterinarian can.</li>
+              <li>Quiet or resting birds make little sound, so a sick bird may not be heard.</li>
+              <li>It does not decide on medicine or treatment. If your birds look sick, contact a veterinarian.</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <footer class="foot" id="foot"></footer>
+    </main>
+  </div>
+</div>
+
+<div class="tip" id="tip" hidden></div>
+<script src="/static/d3.min.js"></script>
+<script src="/static/spectro.js"></script>
+<script src="/static/app.js"></script>
+</body>
+</html>
