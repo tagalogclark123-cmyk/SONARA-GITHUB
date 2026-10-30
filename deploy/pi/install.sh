@@ -22,11 +22,14 @@ sudo systemctl daemon-reload
 sudo systemctl enable sonara-collect
 grep -q "alias note=" ~/.bashrc || echo "alias note='~/sonara-env/bin/python $APP/sonara_note.py'" >> ~/.bashrc
 grep -q "alias live=" ~/.bashrc || echo "alias live='tail -n 30 -f ~/sonara_deploy/live.log'" >> ~/.bashrc
+grep -q "alias monitor=" ~/.bashrc || echo "alias monitor='~/sonara-env/bin/python $APP/sonara_dash.py'" >> ~/.bashrc
+grep -q "bashrc" ~/.profile 2>/dev/null || echo '[ -f ~/.bashrc ] && . ~/.bashrc' >> ~/.profile
 grep -q "alias summary=" ~/.bashrc || echo "alias summary='cat \$(ls -d ~/sonara_deploy/runs/*/ | tail -1)summary.txt'" >> ~/.bashrc
 echo
 echo "Installed. Collection starts automatically whenever the Pi powers on."
 echo "  start now:   sudo systemctl start sonara-collect"
 echo "  stop:        sudo systemctl stop sonara-collect"
+echo "  dashboard:   monitor     (Ctrl+C closes it; collection keeps running)"
 echo "  live view:   live        (Ctrl+C leaves the view; collection keeps running)"
 echo "  summary:     summary"
 echo "  field note:  note \"what you saw\""

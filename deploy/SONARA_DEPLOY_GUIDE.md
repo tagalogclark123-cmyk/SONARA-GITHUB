@@ -19,6 +19,7 @@ If PowerShell says `ssh`/`scp` "is not recognized", type `C:\Windows\Sysnative\O
 | What | Command |
 | --- | --- |
 | Load the shortcuts (if `live` is "not found") | `source ~/.bashrc` |
+| Dashboard: every node at a glance (Ctrl+C closes it only) | `monitor` |
 | Watch clips arrive (Ctrl+C leaves the view only) | `live` |
 | Same, without the shortcut | `tail -n 30 -f ~/sonara_deploy/live.log` |
 | Totals per node | `summary` |
@@ -28,6 +29,7 @@ If PowerShell says `ssh`/`scp` "is not recognized", type `C:\Windows\Sysnative\O
 | Start / stop / restart collection | `sudo systemctl start sonara-collect` / `stop` / `restart` |
 | Free disk space | `df -h ~` |
 | Pi's IP address | `hostname -I` |
+| Start clean (move old runs away, keeps them) | `sudo systemctl stop sonara-collect && mkdir -p ~/bench_tests && mv ~/sonara_deploy ~/bench_tests/sonara_deploy_$(date +%m%d-%H%M)` |
 | Shut down safely (wait for the green light to stop, then unplug) | `sudo shutdown now` |
 
 ## What changed from the earlier tests
@@ -45,7 +47,7 @@ All files are in the GitHub repo's `deploy/` folder (download the repo, or copy 
 | --- | --- |
 | `sonara_deploy_node/sonara_deploy_node.ino` | every node (set NODE_ID first) |
 | `sonara_deploy_bridge/sonara_deploy_bridge.ino` | the bridge ESP32 (no settings) |
-| `pi/sonara_collect.py`, `pi/sonara_classify_worker.py`, `pi/sonara_note.py`, `pi/sonara-collect.service`, `pi/install.sh` | the Pi, folder `~/sonara_deploy_app/` |
+| `pi/sonara_collect.py`, `pi/sonara_classify_worker.py`, `pi/sonara_note.py`, `pi/sonara_dash.py`, `pi/sonara-collect.service`, `pi/install.sh` | the Pi, folder `~/sonara_deploy_app/` |
 
 ## Step 1. Flash the nodes (laptop, Arduino IDE)
 
@@ -96,6 +98,19 @@ The firmware is new and has only been checked on a computer, not on real boards.
 6. Play two or three WAV files on the laptop to confirm they sound right.
 
 **If it doesn't work**, fall back to the tested setup: flash `sonara_test_node.ino` and `sonara_test_bridge.ino` and run `sonara_field_test.py` like on 30 Oct. That handles 1 node only, one clip every 20 s. Send the error output to Claude.
+
+## Step 4b. Start clean before the trip
+
+Test recordings at home end up in the same place as farm data. Move them out of the way (this keeps them, it doesn't delete them), then shut down:
+
+```
+sudo systemctl stop sonara-collect
+mkdir -p ~/bench_tests
+mv ~/sonara_deploy ~/bench_tests/sonara_deploy_$(date +%m%d-%H%M)
+sudo shutdown now
+```
+
+The next power-on (at the farm) starts with an empty `~/sonara_deploy`: no old runs, notes or warnings. Don't power the Pi on again at home, or it starts recording again (if it happens, just repeat this step).
 
 ## Step 5. At the farm
 
