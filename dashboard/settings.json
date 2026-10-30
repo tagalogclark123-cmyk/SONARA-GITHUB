@@ -1,0 +1,9 @@
+{
+  "_about": "Values the gateway used during the field sessions. threshold: B8 90%-recall operating point (deployment_config.json); shown for reference, clips are not re-scored. Zone alert: alert_trigger_clips of the last alert_window_clips usable clips flagged. A clip missing more than max_lost_packets of packets_per_clip is damaged and not counted. no_data_minutes: dashboard-only rule for showing 'No data'.",
+  "threshold": 0.535,
+  "alert_window_clips": 20,
+  "alert_trigger_clips": 8,
+  "max_lost_packets": 33,
+  "packets_per_clip": 667,
+  "no_data_minutes": 10
+}
