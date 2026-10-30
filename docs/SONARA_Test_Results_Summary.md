@@ -107,15 +107,15 @@ Through the node, the model flagged the Sick clip in 94% of recordings at 2 m an
 
 A separate test played the Healthy clip at every distance, with the same speaker. The Healthy clip was flagged in 4 of 90 recordings, never at 1-2 m. The Sick column repeats the 30 Oct results above (58 of 80 flagged).
 
-| Distance | Sick: flagged / recordings | Healthy: flagged / recordings | Median p, nothing playing | Indoor / outdoor recordings |
-| --- | --- | --- | --- | --- |
-| 1 m | 8 / 10 | 0 / 12 | 0.06 | 12 / 0 |
-| 2 m | 17 / 18 | 0 / 20 | 0.09 | 20 / 0 |
-| 5 m | 19 / 31 | 1 / 28 | 0.18 | 28 / 0 |
-| 10 m | 7 / 9 | 1 / 14 | 0.15 | 14 / 12 |
-| 15 m | 7 / 12 | 2 / 16 | 0.25 | 16 / 0 |
+| Distance | Sick: flagged / recordings | Healthy: flagged / recordings | Median p, nothing playing |
+| --- | --- | --- | --- |
+| 1 m | 8 / 10 | 0 / 12 | 0.06 |
+| 2 m | 17 / 18 | 0 / 20 | 0.09 |
+| 5 m | 19 / 31 | 1 / 28 | 0.18 |
+| 10 m | 7 / 9 | 1 / 14 | 0.15 |
+| 15 m | 7 / 12 | 2 / 16 | 0.25 |
 
-- All Healthy runs were indoors at home. The 12 outdoor recordings at 10 m are an extra trial run outside and are not in the Healthy count.
+- All Healthy runs were indoors at home. One extra, unplanned trial run outdoors at 10 m was not part of the test and is left out.
 - "Median p, nothing playing" is the median model output for recordings made with no playback during each distance's run. All are well below the 0.535 threshold. Nothing was playing, so the differences between rows reflect room noise during each run, not distance.
 - The 1 m Healthy result here (0 of 12) is a new test, separate from the 0 of 9 in the table above.
 - At 10 and 15 m the two clips were not recorded under the same conditions: Sick at the second location during rain, Healthy indoors at home. The Sick and Healthy rates at those distances should not be compared directly.
