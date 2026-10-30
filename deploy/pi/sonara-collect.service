@@ -1,0 +1,15 @@
+[Unit]
+Description=SONARA farm data collection
+After=multi-user.target
+
+[Service]
+User=keith
+WorkingDirectory=/home/keith/sonara_deploy_app
+ExecStart=/home/keith/sonara-env/bin/python -u /home/keith/sonara_deploy_app/sonara_collect.py
+Restart=always
+RestartSec=5
+KillSignal=SIGINT
+TimeoutStopSec=20
+
+[Install]
+WantedBy=multi-user.target
