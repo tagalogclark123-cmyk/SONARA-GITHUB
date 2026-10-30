@@ -102,6 +102,18 @@ Through the node, the model flagged the Sick clip in 94% of recordings at 2 m an
 - A check that does not use the model confirmed every flagged recording contains the Sick clip: each recording was matched against the original clip (correlation 0.32-0.42 when the clip is clear, against at most 0.08 for a reversed copy of the clip). Counting only recordings where the clip was clearly present: 10 m 7 of 8 flagged, 15 m 6 of 7. Five early 15 m recordings held the clip only faintly (correlation about 0.2) and one was flagged; one 10 m recording was drowned out by a loud burst of noise and held no detectable clip (not flagged).
 - Takeaway: at 10-15 m, whether the clip stood out from the background mattered more than distance.
 
+## Speaker checks: Sick and Healthy clips by distance
+
+Same speaker setup as above, with the Healthy clip now played at every distance. Across all distances the Sick clip was flagged in 58 of 80 recordings and the Healthy clip in 4 of 90.
+
+| Distance | Sick: flagged / recordings | Healthy: flagged / recordings | Median pBackground | Indoor / outdoor recordings |
+| --- | --- | --- | --- | --- |
+| 1 m | 8 / 10 | 0 / 12 | 0.06 | 12 / 0 |
+| 2 m | 17 / 18 | 0 / 20 | 0.09 | 20 / 0 |
+| 5 m | 19 / 31 | 1 / 28 | 0.18 | 28 / 0 |
+| 10 m | 7 / 9 | 1 / 14 | 0.15 | 14 / 12 |
+| 15 m | 7 / 12 | 2 / 16 | 0.25 | 16 / 0 |
+
 ## Limitations
 
 None of these tests gives a field accuracy or recall for detecting sick birds.
