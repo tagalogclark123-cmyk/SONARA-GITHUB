@@ -11,7 +11,6 @@ The full pipeline works end to end. Through the node, the model recognises a Sic
 - **Model on the Pi = evaluated model:** identical probabilities on all full-length test clips (SmartEars accuracy 0.922, seed 42); inference median 52-100 ms.
 - **Speaker playback, good speaker:** Sick clip flagged in 94% of recordings at 2 m and 80% at 1 m; Healthy clip never flagged at 1 m. At 5 m it fell to 61%; 58-78% at 10-15 m; an unattended 4 m run was excluded and will be repeated.
 - **Laptop-speaker replay (19 Oct):** distress detection collapsed (3/19). Simulation traced most of it to the laptop speaker's frequency distortion, which the 30 Oct speaker checks support.
-- **Healthy clip at every distance:** flagged in 4 of 90 recordings (0 at 1-2 m, 1-2 per distance at 5-15 m).
 - **Live birds (5 sessions, 2 sites):** 0-4.4% of clips flagged in every session, sick or healthy. No session-level separation yet; sick birds were mostly quiet or resting.
 - **Radio link:** all clips complete at 2-15 m in clear view, open air and in a paper bag; retries start near 15 m (signal about -85 dBm). A node inside a wire cage lost most of its audio (24 Oct).
 - **Damaged clips must be filtered:** a partly empty clip scored p = 0.97 once. The report tool now excludes clips missing more than 5% of their packets.
@@ -102,23 +101,6 @@ Through the node, the model flagged the Sick clip in 94% of recordings at 2 m an
 - 10 and 15 m (30 Oct afternoon, during rain, other conditions held the same): a first spot was abandoned because it was too noisy (the clip was only about 2 dB above the background; 0 of 13 flagged). At the spot used, rain noise rose and fell (-40.8 to -49.8 dBFS), so levels cannot be compared between runs.
 - A check that does not use the model confirmed every flagged recording contains the Sick clip: each recording was matched against the original clip (correlation 0.32-0.42 when the clip is clear, against at most 0.08 for a reversed copy of the clip). Counting only recordings where the clip was clearly present: 10 m 7 of 8 flagged, 15 m 6 of 7. Five early 15 m recordings held the clip only faintly (correlation about 0.2) and one was flagged; one 10 m recording was drowned out by a loud burst of noise and held no detectable clip (not flagged).
 - Takeaway: at 10-15 m, whether the clip stood out from the background mattered more than distance.
-
-## Speaker checks: Sick and Healthy clips by distance
-
-A separate test played the Healthy clip at every distance, with the same speaker. The Healthy clip was flagged in 4 of 90 recordings, never at 1-2 m. The Sick column repeats the 30 Oct results above (58 of 80 flagged).
-
-| Distance | Sick: flagged / recordings | Healthy: flagged / recordings | Median p, nothing playing |
-| --- | --- | --- | --- |
-| 1 m | 8 / 10 | 0 / 12 | 0.06 |
-| 2 m | 17 / 18 | 0 / 20 | 0.09 |
-| 5 m | 19 / 31 | 1 / 28 | 0.18 |
-| 10 m | 7 / 9 | 1 / 14 | 0.15 |
-| 15 m | 7 / 12 | 2 / 16 | 0.25 |
-
-- All Healthy runs were indoors at home. One extra, unplanned trial run outdoors at 10 m was not part of the test and is left out.
-- "Median p, nothing playing" is the median model output for recordings made with no playback during each distance's run. All are well below the 0.535 threshold. Nothing was playing, so the differences between rows reflect room noise during each run, not distance.
-- The 1 m Healthy result here (0 of 12) is a new test, separate from the 0 of 9 in the table above.
-- At 10 and 15 m the two clips were not recorded under the same conditions: Sick at the second location during rain, Healthy indoors at home. The Sick and Healthy rates at those distances should not be compared directly.
 
 ## Limitations
 
