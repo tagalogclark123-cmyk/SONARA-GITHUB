@@ -2,6 +2,34 @@
 
 Goal: record as many 5-second clips as possible from every node, with notes that say what was happening in each pen. The Pi saves every clip and also classifies it live. It never deletes anything.
 
+## Quick commands (cheat sheet)
+
+**From the laptop (PowerShell, connected to the router's Wi-Fi):**
+
+| What | Command |
+| --- | --- |
+| Log in to the Pi | `ssh keith@192.168.1.247` |
+| Set the Pi's clock (do this first at each farm) | `ssh -t keith@192.168.1.247 "sudo date -s '$(Get-Date -Format 'yyyy-MM-dd HH:mm:ss')'"` |
+| Copy all data to the laptop | `scp -r keith@192.168.1.247:~/sonara_deploy C:\Users\<you>\Downloads\farm_data_nov3` |
+
+If PowerShell says `ssh`/`scp` "is not recognized", type `C:\Windows\Sysnative\OpenSSH\ssh.exe` (or `scp.exe`) instead.
+
+**On the Pi (after logging in):**
+
+| What | Command |
+| --- | --- |
+| Load the shortcuts (if `live` is "not found") | `source ~/.bashrc` |
+| Watch clips arrive (Ctrl+C leaves the view only) | `live` |
+| Same, without the shortcut | `tail -n 30 -f ~/sonara_deploy/live.log` |
+| Totals per node | `summary` |
+| Write a field note | `note "node 2 = pen C, 35 broilers, 4 weeks, caretaker: 5 sneezing"` |
+| Check the time | `date` |
+| Is collection running? | `systemctl status sonara-collect --no-pager` |
+| Start / stop / restart collection | `sudo systemctl start sonara-collect` / `stop` / `restart` |
+| Free disk space | `df -h ~` |
+| Pi's IP address | `hostname -I` |
+| Shut down safely (wait for the green light to stop, then unplug) | `sudo shutdown now` |
+
 ## What changed from the earlier tests
 
 - **Nodes record back to back.** Before, a node recorded one clip every 20 to 30 s. Now each node records the next clip as soon as the last one is sent. With one node that's about 6 clips per minute (about 380 per hour).
