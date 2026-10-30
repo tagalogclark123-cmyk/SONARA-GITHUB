@@ -90,15 +90,16 @@ Through the node, the model flagged the Sick clip in 94% of recordings at 2 m an
 | 1 m | Sick | indoors, home | 10 | 8 (80%) | 0.981 |
 | 2 m | Sick | indoors, home | 18 | 17 (94%) | 0.948 |
 | 5 m | Sick | indoors, home | 31 | 19 (61%) | 0.655 |
-| 10 m | Sick | outdoors | 9 | 7 (78%) | 0.813 |
-| 15 m | Sick | outdoors | 12 | 7 (58%) | 0.639 |
-| none | background | outdoors | 12 | 0 | 0.012 |
+| 10 m | Sick | home, second location | 9 | 7 (78%) | 0.813 |
+| 15 m | Sick | home, second location | 12 | 7 (58%) | 0.639 |
+| none | background | home, second location | 12 | 0 | 0.012 |
 
 - Clips: SmartEars `Sick/rpi0104-20240323131600-3` (original p 0.997) and `Healthy/rpi0105-20240119201100-0` (original p 0.038), each looped through a Bluetooth/desktop speaker at one fixed volume.
 - Indoor runs: recordings during silence and four with loud interruptions were excluded; silent recordings were never flagged (max p 0.18). The recorded level fell only about 3 dB from 2 to 5 m (indoor echo), yet p dropped strongly: consistent with the model's sensitivity to sound character.
 - A 4 m run was excluded: the tester stepped away during it, so it is not known what was playing or where the speaker was (it ran about 16 minutes against a 3-minute loop). Its result was 11 of 43 recordings flagged. It will be repeated with someone present.
 - The good speaker restored detection compared with the laptop replay, supporting the distortion diagnosis.
-- 10 and 15 m (30 Oct afternoon, during rain, other conditions held the same): a first spot was abandoned because it was too noisy (the clip was only about 2 dB above the background; 0 of 13 flagged). At the spot used, rain noise rose and fell (-40.8 to -49.8 dBFS), so levels cannot be compared between runs.- A check that does not use the model confirmed every flagged recording contains the Sick clip: each recording was matched against the original clip (correlation 0.32-0.42 when the clip is clear, against at most 0.08 for a reversed copy of the clip). Counting only recordings where the clip was clearly present: 10 m 7 of 8 flagged, 15 m 6 of 7. Five early 15 m recordings held the clip only faintly (correlation about 0.2) and one was flagged; one 10 m recording was drowned out by a loud burst of noise and held no detectable clip (not flagged).
+- 10 and 15 m (30 Oct afternoon, during rain, other conditions held the same): a first spot was abandoned because it was too noisy (the clip was only about 2 dB above the background; 0 of 13 flagged). At the spot used, rain noise rose and fell (-40.8 to -49.8 dBFS), so levels cannot be compared between runs.
+- A check that does not use the model confirmed every flagged recording contains the Sick clip: each recording was matched against the original clip (correlation 0.32-0.42 when the clip is clear, against at most 0.08 for a reversed copy of the clip). Counting only recordings where the clip was clearly present: 10 m 7 of 8 flagged, 15 m 6 of 7. Five early 15 m recordings held the clip only faintly (correlation about 0.2) and one was flagged; one 10 m recording was drowned out by a loud burst of noise and held no detectable clip (not flagged).
 - Takeaway: at 10-15 m, whether the clip stood out from the background mattered more than distance.
 
 ## Limitations
